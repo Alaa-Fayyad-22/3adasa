@@ -94,17 +94,17 @@ export default function Hero() {
         </p>
 
         <div className="blur-in inline-flex flex-wrap items-center justify-center gap-4">
-          <button
+          {/* <button
             onClick={() => scrollTo("gallery")}
             className="group relative rounded-full text-sm font-medium transition-transform hover:scale-105"
-          >
+          > */}
             <span className="accent-gradient absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             <span className="relative flex items-center justify-center rounded-full bg-text-primary px-7 py-3.5 text-bg transition-colors duration-300 group-hover:bg-bg group-hover:text-text-primary">
              <Link to="/gallery" className="group relative rounded-full text-sm">
                 View Gallery
               </Link>
             </span>
-          </button>
+          {/* </button> */}
 
           <a
             href={`mailto:${photographer.email}`}
