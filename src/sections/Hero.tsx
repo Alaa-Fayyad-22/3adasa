@@ -43,9 +43,9 @@ export default function Hero() {
     return () => ctx.revert();
   }, []);
 
-  const scrollTo = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-  };
+  // const scrollTo = (id: string) => {
+  //   document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  // };
 
   return (
     <section
