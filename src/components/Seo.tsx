@@ -1,8 +1,8 @@
 import { Helmet } from "react-helmet-async";
-import { aboutPortrait, photographer } from "../data/photos";
+import {  photographer } from "../data/photos";
 
 const SITE_NAME = `${photographer.name} — Photography`;
-const DEFAULT_IMAGE = aboutPortrait;
+const DEFAULT_IMAGE = "https://3adasa-lb.vercel.app/about-image_logo.jpeg";
 
 type SeoProps = {
   title: string;

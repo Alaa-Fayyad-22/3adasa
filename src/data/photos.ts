@@ -11,7 +11,6 @@ const unsplash = (id: string, w = 1600) =>
 export const photographer = {
   name: "Jad Daou",
   city: "Beirut, Lebanon",
-  email: "hello@jaddaou.com",
   roles: ["Photographer", "Storyteller", "Visual Artist", "Explorer"],
   description:
     "Capturing raw, unscripted moments through light, shadow, and stillness.",
