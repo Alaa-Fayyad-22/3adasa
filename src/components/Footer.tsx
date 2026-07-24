@@ -33,7 +33,7 @@ export default function Footer() {
       <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-8 border-t border-stroke px-6 pt-8 md:grid-cols-3 md:gap-12 md:px-10 lg:px-16">
         <div className="flex flex-col gap-3">
           <span className="font-display text-3xl justify-items-left md:text-4xl">
-            <img src="/logo-nav.png" alt={`${photographer.name} logo`} width={80} height={80} className="object-contain" />
+            <img src="/logo-nav.png" alt={`${photographer.name} logo`} width={80} height={80} loading="lazy" className="object-contain" />
           </span>
           <p className="text-sm text-muted">{photographer.description}</p>
         </div>

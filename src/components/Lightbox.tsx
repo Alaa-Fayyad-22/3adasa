@@ -93,6 +93,7 @@ export default function Lightbox({ photos, index, onClose, onNavigate }: Lightbo
           <img
             src={photo.src}
             alt={photo.title}
+            loading="lazy"
             className="max-h-[75vh] max-w-full rounded-lg object-contain shadow-2xl"
           />
           <p className="font-display text-xl italic text-text-primary">

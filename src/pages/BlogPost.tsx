@@ -3,6 +3,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Seo from "../components/Seo";
 import JsonLd from "../components/JsonLd";
+import { absoluteUrl } from "../lib/seo";
 import { photographer } from "../data/photos";
 import { posts } from "../data/posts";
 
@@ -34,8 +35,13 @@ export default function BlogPost() {
           "@type": "BlogPosting",
           headline: post.title,
           description: post.excerpt,
-          image: post.coverImage,
+          image: absoluteUrl(post.coverImage),
           datePublished: post.date,
+          url: absoluteUrl(`/blog/${post.slug}`),
+          mainEntityOfPage: {
+            "@type": "WebPage",
+            "@id": absoluteUrl(`/blog/${post.slug}`),
+          },
           author: {
             "@type": "Person",
             name: photographer.name,
@@ -66,6 +72,7 @@ export default function BlogPost() {
             <img
               src={post.coverImage}
               alt={post.title}
+              loading="lazy"
               className="h-full w-full object-cover"
             />
           </div>

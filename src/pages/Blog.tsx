@@ -8,8 +8,8 @@ export default function Blog() {
   return (
     <>
       <Seo
-        title="Blog"
-        description="Notes on photography, editorial sets, and life behind the lens."
+        title="Blog — Notes from the Field"
+        description="Read notes on photography from Jad Daou: behind-the-scenes stories from portrait sessions, editorial sets, street photography, and travel shoots today."
       />
       <Navbar />
       <main className="min-h-screen bg-bg px-6 pb-16 pt-24 md:px-10 md:pt-32 lg:px-16">
@@ -32,6 +32,7 @@ export default function Blog() {
                   <img
                     src={post.coverImage}
                     alt={post.title}
+                    loading="lazy"
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 </div>

@@ -7,8 +7,8 @@ export default function Gallery() {
   return (
     <>
       <Seo
-        title="Gallery"
-        description="The full portfolio — portraits, landscapes, editorial, and street work."
+        title="Gallery — Portrait & Street Work"
+        description="Browse the full photography portfolio of Jad Daou: portrait sessions, street photography, travel imagery, and event coverage from Beirut and beyond today."
       />
       <Navbar />
       <main className="bg-bg pt-24 md:pt-32">

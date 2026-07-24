@@ -6,8 +6,8 @@ export default function Reservation() {
   return (
     <>
       <Seo
-        title="Reservation"
-        description="Book a photography session — availability and booking details coming soon."
+        title="Book a Photography Session"
+        description="Reserve a portrait, street, travel, or event photography session with Jad Daou in Beirut. Availability and booking details are coming soon right here."
       />
       <Navbar />
       <main className="flex min-h-screen flex-col items-center justify-center bg-bg px-6 pt-24 text-center md:pt-32">

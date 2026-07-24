@@ -79,6 +79,7 @@ export default function BehindTheLens() {
                   <img
                     src={photo.src}
                     alt={photo.title}
+                    loading="lazy"
                     className="h-full w-full object-cover"
                   />
                 </button>
@@ -102,6 +103,7 @@ export default function BehindTheLens() {
                   <img
                     src={photo.src}
                     alt={photo.title}
+                    loading="lazy"
                     className="h-full w-full object-cover"
                   />
                 </button>

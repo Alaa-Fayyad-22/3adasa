@@ -39,6 +39,7 @@ export default function AboutTeaser() {
             ref={imgRef}
             src={aboutPortrait}
             alt={photographer.name}
+            loading="lazy"
             onLoad={() => ScrollTrigger.refresh()}
             className="will-change-transform absolute inset-x-0 top-1/2 h-[130%] w-full object-cover"
           />

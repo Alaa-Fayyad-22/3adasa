@@ -33,9 +33,9 @@ export default function Gallery() {
                 Selected Work
               </span>
             </div>
-            <h2 className="mb-3 font-display text-4xl text-text-primary md:text-5xl">
+            <h1 className="mb-3 font-display text-4xl text-text-primary md:text-5xl">
               Featured <span className="italic">shots</span>
-            </h2>
+            </h1>
             <p className="max-w-md text-sm text-muted md:text-base">
               A curated selection of work across portrait, landscape, and
               editorial.

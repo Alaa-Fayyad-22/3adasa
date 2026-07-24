@@ -37,6 +37,7 @@ export default function About() {
             ref={imgRef}
             src={aboutPortrait}
             alt={photographer.name}
+            loading="lazy"
             className="h-[120%] w-full object-cover"
           />
         </div>
@@ -45,9 +46,9 @@ export default function About() {
           <span className="text-xs uppercase tracking-[0.3em] text-muted">
             About
           </span>
-          <h2 className="mb-6 mt-4 font-display text-4xl text-text-primary md:text-5xl">
+          <h1 className="mb-6 mt-4 font-display text-4xl text-text-primary md:text-5xl">
             Hi, I&apos;m <span className="italic">{photographer.name}</span>
-          </h2>
+          </h1>
 
           <div className="mb-6 space-y-4 text-sm text-muted md:text-base">
             <p>

@@ -5,7 +5,8 @@ import LoadingScreen from "../components/LoadingScreen";
 import Footer from "../components/Footer";
 import Seo from "../components/Seo";
 import JsonLd from "../components/JsonLd";
-import { photographer } from "../data/photos";
+import { absoluteUrl } from "../lib/seo";
+import { aboutPortrait, photographer } from "../data/photos";
 import Hero from "../sections/Hero";
 import AboutTeaser from "../sections/AboutTeaser";
 import GalleryTeaser from "../sections/GalleryTeaser";
@@ -35,8 +36,9 @@ export default function Index() {
   return (
     <>
       <Seo
-        title={`${photographer.name} — Photography`}
-        description={photographer.description}
+        title="Jad Daou Photography — Portraits & Street in Beirut"
+        description="Jad Daou is a Beirut-based photographer shooting portraits, street scenes, travel, and events. Browse the full photography portfolio and book a session."
+        suffixSiteName={false}
       />
       <JsonLd
         data={{
@@ -45,6 +47,7 @@ export default function Index() {
           name: photographer.name,
           jobTitle: photographer.roles[0],
           description: photographer.description,
+          image: absoluteUrl(aboutPortrait),
           address: {
             "@type": "PostalAddress",
             addressLocality: photographer.city,

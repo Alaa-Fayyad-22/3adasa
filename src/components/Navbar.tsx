@@ -45,6 +45,7 @@ export default function Navbar() {
             alt={`${photographer.name} logo`}
             width={50}
             height={50}
+            loading="lazy"
             className="object-contain"
           />
         </button>
