@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { gsap } from "gsap";
 import Navbar from "../components/Navbar";
 import { heroImages, photographer } from "../data/photos";
+import { Link } from "react-router-dom";
 
 const SLIDE_DURATION = 5500;
 
@@ -99,9 +100,9 @@ export default function Hero() {
           >
             <span className="accent-gradient absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             <span className="relative flex items-center justify-center rounded-full bg-text-primary px-7 py-3.5 text-bg transition-colors duration-300 group-hover:bg-bg group-hover:text-text-primary">
-             <a href="/gallery" className="text-inherit no-underline">
+             <Link to="/gallery" className="group relative rounded-full text-sm">
                 View Gallery
-              </a>
+              </Link>
             </span>
           </button>
 
