@@ -45,7 +45,6 @@ export default function Index() {
           name: photographer.name,
           jobTitle: photographer.roles[0],
           description: photographer.description,
-          email: `mailto:${photographer.email}`,
           address: {
             "@type": "PostalAddress",
             addressLocality: photographer.city,

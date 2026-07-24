@@ -106,15 +106,15 @@ export default function Hero() {
             </span>
           {/* </button> */}
 
-          <a
-            href={`mailto:${photographer.email}`}
+          <Link
+            to="/reservation"
             className="group relative rounded-full text-sm font-medium transition-transform hover:scale-105"
           >
             <span className="accent-gradient absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             <span className="relative flex items-center justify-center rounded-full border-2 border-stroke bg-bg px-7 py-3.5 text-text-primary transition-colors duration-300 group-hover:border-transparent">
               Book a Session
             </span>
-          </a>
+          </Link>
         </div>
       </div>
 
