@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { gsap, ScrollTrigger } from "../lib/gsapSetup";
-import { aboutPortrait, photographer, specialties } from "../data/photos";
+import { aboutPortrait, photographer} from "../data/photos";
 
 export default function AboutTeaser() {
   const frameRef = useRef<HTMLDivElement>(null);
