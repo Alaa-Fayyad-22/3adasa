@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { reservationSchema } from "../src/lib/reservationSchema.js";
 import { formatBeirutTime } from "../src/lib/timezone.js";
-import type { VercelRequest, VercelResponse } from "./_lib/types";
+import type { VercelRequest, VercelResponse } from "./_lib/types.js";
 import { getClientIp, getJsonBody } from "./_lib/request.js";
 import { verifyTurnstile } from "./_lib/turnstile.js";
 import { checkRateLimit } from "./_lib/ratelimit.js";

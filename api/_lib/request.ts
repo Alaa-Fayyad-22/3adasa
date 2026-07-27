@@ -1,4 +1,4 @@
-import type { VercelRequest } from "./types";
+import type { VercelRequest } from "./types.js";
 
 /** Best-effort real client IP behind Vercel's proxy. */
 export function getClientIp(req: VercelRequest): string {

@@ -1,4 +1,4 @@
-import type { VercelRequest, VercelResponse } from "./_lib/types";
+import type { VercelRequest, VercelResponse } from "./_lib/types.js";
 import { getSupabaseAdmin, type ReservationRow } from "./_lib/supabaseAdmin.js";
 import { sendWhatsAppTemplate } from "./_lib/whatsapp.js";
 import { formatBeirutTime } from "../src/lib/timezone.js";
