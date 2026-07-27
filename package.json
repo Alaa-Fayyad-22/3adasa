@@ -8,7 +8,7 @@
     "predev": "npm run generate-photo-data",
     "generate-seo": "tsx scripts/generate-seo-files.ts",
     "generate-photo-data": "tsx scripts/generate-photo-data.ts",
-    "build": "npm run generate-seo && npm run generate-photo-data && tsc -b && vite build",
+    "build": "npm run generate-photo-data && npm run generate-seo && tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview"
   },
