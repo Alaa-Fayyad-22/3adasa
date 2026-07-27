@@ -106,6 +106,7 @@ export default function LocationPicker({ value, onChange }: LocationPickerProps)
           fullscreenControl: false,
         });
         mapRef.current = map;
+        (window as unknown as Record<string, unknown>).__debugMap = map;
 
         function placeMarker(position: google.maps.LatLngLiteral) {
           if (markerRef.current) {
