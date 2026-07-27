@@ -30,3 +30,6 @@ src/data/generatedPhotos.ts
 *.njsproj
 *.sln
 *.sw?
+
+.vercel
+.env*

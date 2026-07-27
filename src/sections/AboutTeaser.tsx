@@ -50,7 +50,7 @@ export default function AboutTeaser() {
             About
           </span>
           <h2 className="mb-6 mt-4 font-display text-4xl text-text-primary md:text-5xl">
-            Hi, I&apos;m <span className="italic">{photographer.name}</span>
+            Got a moment worth keeping? Let&apos;s capture it.
           </h2>
 
           <p   className="mb-8 max-w-md text-sm text-muted md:text-base">

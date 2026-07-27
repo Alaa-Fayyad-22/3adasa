@@ -26,6 +26,6 @@ export const stats = [
   { value: "400+", label: "Images Captured" },
 ];
 
-export const specialties = ["Portrait", "Street", "Landscape", "Events"];
+export const specialties = ["Portrait",  "Landscape", "Events"];
 
 export const categories = ["All", "Portrait", "Landscape", "Events"] as const;
