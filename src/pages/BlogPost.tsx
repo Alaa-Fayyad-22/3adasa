@@ -57,7 +57,7 @@ export default function BlogPost() {
         <article className="mx-auto max-w-[800px]">
           <Link
             to="/blog"
-            className="mb-8 inline-block text-sm text-muted transition-colors hover:text-text-primary"
+            className="mb-8 flex min-h-[40px] w-fit items-center text-sm text-muted transition-colors hover:text-text-primary"
           >
             ← Back to blog
           </Link>

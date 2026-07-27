@@ -41,12 +41,12 @@ export default function Gallery() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <div className="hidden flex-wrap gap-1 rounded-full border border-stroke p-1 md:flex">
+            <div className="flex flex-wrap gap-2 rounded-3xl border border-stroke p-2 md:rounded-full md:p-1">
               {categories.map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setActiveCategory(cat)}
-                  className={`rounded-full px-4 py-2 text-sm transition-colors ${
+                  className={`flex min-h-[40px] items-center rounded-full px-4 py-2.5 text-sm transition-colors ${
                     activeCategory === cat
                       ? "bg-stroke/50 text-text-primary"
                       : "text-muted hover:bg-stroke/50 hover:text-text-primary"

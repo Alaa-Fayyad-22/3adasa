@@ -37,7 +37,7 @@ export default function Navbar() {
       >
         <button
           onClick={() => goToSection("home")}
-          className="group relative flex h-13 w-13 items-center justify-center rounded-full transition-transform duration-300 hover:scale-110"
+          className="group relative flex h-[52px] w-[52px] items-center justify-center rounded-full transition-transform duration-300 hover:scale-110"
           aria-label="Home"
         >
           <img
@@ -46,7 +46,7 @@ export default function Navbar() {
             width={50}
             height={50}
             loading="lazy"
-            className="object-contain"
+            className="h-full w-full object-contain"
           />
         </button>
 
@@ -55,7 +55,7 @@ export default function Navbar() {
         <nav className="flex items-center">
           {NAV_LINKS.map((link) => {
             const active = isActive(link);
-            const linkClassName = `rounded-full px-3 py-1.5 text-xs transition-colors sm:px-4 sm:py-2 sm:text-sm ${
+            const linkClassName = `flex min-h-[40px] items-center justify-center rounded-full px-3 py-1.5 text-xs transition-colors sm:px-4 sm:py-2 sm:text-sm ${
               active
                 ? "bg-stroke/50 text-text-primary"
                 : "text-muted hover:bg-stroke/50 hover:text-text-primary"

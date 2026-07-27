@@ -38,7 +38,7 @@ export default function GalleryTeaser() {
 
           <Link to="/gallery" className="group relative rounded-full text-sm">
             <span className="accent-gradient absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-            <span className="relative flex items-center gap-2 rounded-full border border-stroke bg-bg px-4 py-2 text-text-primary transition-colors group-hover:border-transparent">
+            <span className="relative flex items-center justify-center gap-2 rounded-full border border-stroke bg-bg px-4 py-2.5 text-text-primary transition-colors group-hover:border-transparent">
               View all work <span aria-hidden>→</span>
             </span>
           </Link>

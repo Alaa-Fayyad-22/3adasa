@@ -46,13 +46,13 @@ export default function Footer() {
           <span className="text-xs uppercase tracking-[0.3em] text-muted">
             Quick links
           </span>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col">
             {NAV_LINKS.map((link) =>
               link.kind === "anchor" ? (
                 <button
                   key={link.id}
                   onClick={() => goToSection(link.id)}
-                  className="text-left text-sm text-muted transition-colors hover:text-text-primary"
+                  className="flex min-h-[40px] items-center text-left text-sm text-muted transition-colors hover:text-text-primary"
                 >
                   {link.label}
                 </button>
@@ -60,7 +60,7 @@ export default function Footer() {
                 <Link
                   key={link.path}
                   to={link.path}
-                  className="text-sm text-muted transition-colors hover:text-text-primary"
+                  className="flex min-h-[40px] items-center text-sm text-muted transition-colors hover:text-text-primary"
                 >
                   {link.label}
                 </Link>
@@ -70,7 +70,7 @@ export default function Footer() {
         </div>
 
         <div className="flex flex-col items-start gap-4 md:items-end md:text-right">
-          <div className="flex items-center gap-4">
+          <div className="-m-1 flex items-center gap-2">
             {SOCIALS.map((social) => {
               const Icon = social.icon;
               return (
@@ -80,7 +80,7 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={social.label}
-                  className="text-muted transition-colors hover:text-text-primary"
+                  className="flex h-10 w-10 items-center justify-center rounded-full text-muted transition-colors hover:text-text-primary"
                 >
                   <Icon size={20} aria-hidden />
                 </a>

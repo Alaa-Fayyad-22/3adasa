@@ -16,7 +16,15 @@ export default function BehindTheLens() {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   useEffect(() => {
-    const ctx = gsap.context(() => {
+    // The pin+parallax trick needs scroll distance and screen real estate
+    // that small viewports don't have — and pinning is exactly what caused
+    // the section to desync from its real scroll position on mobile (stale
+    // trigger bounds from layout that shifts as images above load in).
+    // matchMedia keeps the effect entirely out of the DOM below md, so
+    // mobile just gets the plain stacked layout with nothing to desync.
+    const mm = gsap.matchMedia();
+
+    mm.add("(min-width: 768px)", () => {
       ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top top",
@@ -49,16 +57,20 @@ export default function BehindTheLens() {
           { y: -160, ease: "none" },
           0
         );
-    }, sectionRef);
+    });
 
-    return () => ctx.revert();
+    return () => mm.revert();
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative min-h-[300vh] bg-bg">
+    <section
+      ref={sectionRef}
+      className="relative bg-bg md:min-h-[300vh]"
+    >
+      {/* Desktop/tablet: pinned parallax layout */}
       <div
         ref={contentRef}
-        className="relative flex h-screen w-full items-center justify-center overflow-hidden pt-24 md:pt-32"
+        className="relative hidden h-screen w-full items-center justify-center overflow-hidden pt-24 md:flex md:pt-32"
       >
         {/* Layer 2: parallax image columns — anchored to the outer thirds,
             behind the text, purely vertical (translateY) motion. */}
@@ -80,6 +92,7 @@ export default function BehindTheLens() {
                     src={photo.src}
                     alt={photo.title}
                     loading="lazy"
+                    onLoad={() => ScrollTrigger.refresh()}
                     className="h-full w-full object-cover"
                   />
                 </button>
@@ -104,6 +117,7 @@ export default function BehindTheLens() {
                     src={photo.src}
                     alt={photo.title}
                     loading="lazy"
+                    onLoad={() => ScrollTrigger.refresh()}
                     className="h-full w-full object-cover"
                   />
                 </button>
@@ -137,6 +151,50 @@ export default function BehindTheLens() {
               </span>
             </a>
           </div>
+        </div>
+      </div>
+
+      {/* Mobile: simple static stacked layout — no pin, no parallax, no
+          scroll-driven positioning to desync. */}
+      <div className="flex flex-col items-center gap-10 px-6 py-16 md:hidden">
+        <div className="flex flex-col items-center gap-6 text-center">
+          <span className="text-xs uppercase tracking-[0.3em] text-muted">
+            Behind the Lens
+          </span>
+          <h2 className="font-display text-4xl text-text-primary">
+            More <span className="italic">frames</span>
+          </h2>
+          <p className="max-w-sm text-sm text-muted">
+            Stills from the road, the studio, and the space between shots.
+          </p>
+          <a
+            href="https://www.instagram.com/3adasa.lb/"
+            target="_blank"
+            rel="noreferrer"
+            className="group relative rounded-full text-sm font-medium transition-transform hover:scale-105"
+          >
+            <span className="accent-gradient absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+            <span className="relative flex items-center justify-center rounded-full border-2 border-stroke bg-bg px-7 py-3.5 text-text-primary transition-colors duration-300 group-hover:border-transparent">
+              Follow on Instagram
+            </span>
+          </a>
+        </div>
+
+        <div className="grid w-full grid-cols-2 gap-4">
+          {behindTheLensPhotos.map((photo, i) => (
+            <button
+              key={photo.id}
+              onClick={() => setLightboxIndex(i)}
+              className="aspect-square overflow-hidden rounded-2xl border border-stroke bg-surface transition-transform active:scale-95"
+            >
+              <img
+                src={photo.src}
+                alt={photo.title}
+                loading="lazy"
+                className="h-full w-full object-cover"
+              />
+            </button>
+          ))}
         </div>
       </div>
 
