@@ -136,6 +136,7 @@ export default function LocationPicker({ value, onChange }: LocationPickerProps)
         // Click anywhere on the map as a fallback way to place/move the pin,
         // in addition to dragging it — same "address text stays put" rule.
         map.addListener("click", (e: google.maps.MapMouseEvent) => {
+          console.log("[location-picker] DEBUG map click fired", e.latLng?.toJSON());
           if (!e.latLng) return;
           const lat = e.latLng.lat();
           const lng = e.latLng.lng();
