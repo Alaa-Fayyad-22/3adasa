@@ -54,7 +54,7 @@ export default function AboutTeaser() {
           </h2>
 
           <p   className="mb-8 max-w-md text-sm text-muted md:text-base">
-            A Beirut-based photographer who shoots a bit of everything — portraits, street, travel, events.
+            A Beirut-based photographer who shoots a bit of everything — portraits, street, landscape, events.
           </p>
 
           <p className="mb-8 max-w-md text-sm text-muted md:text-base">

@@ -37,7 +37,7 @@ export default function Index() {
     <>
       <Seo
         title="Jad Daou Photography — Portraits & Street in Beirut"
-        description="Jad Daou is a Beirut-based photographer shooting portraits, street scenes, travel, and events. Browse the full photography portfolio and book a session."
+        description="Jad Daou is a Beirut-based photographer shooting portraits, street scenes, landscape, and events. Browse the full photography portfolio and book a session."
         suffixSiteName={false}
       />
       <JsonLd

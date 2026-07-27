@@ -11,7 +11,7 @@ export default function About() {
     <>
       <Seo
         title="About Jad Daou — Photographer"
-        description="Meet Jad Daou, a Beirut-based photographer covering portraits, street scenes, travel, and events. Read the story and specialties behind the camera here."
+        description="Meet Jad Daou, a Beirut-based photographer covering portraits, street scenes, landscape, and events. Read the story and specialties behind the camera here."
       />
       <JsonLd
         data={{

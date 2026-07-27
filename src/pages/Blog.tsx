@@ -9,7 +9,7 @@ export default function Blog() {
     <>
       <Seo
         title="Blog — Notes from the Field"
-        description="Read notes on photography from Jad Daou: behind-the-scenes stories from portrait sessions, editorial sets, street photography, and travel shoots today."
+        description="Read notes on photography from Jad Daou: behind-the-scenes stories from portrait sessions, editorial sets, street photography, and landscape shoots today."
       />
       <Navbar />
       <main className="min-h-screen bg-bg px-6 pb-16 pt-24 md:px-10 md:pt-32 lg:px-16">

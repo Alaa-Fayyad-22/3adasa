@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import GalleryCard from "../components/GalleryCard";
 import Lightbox from "../components/Lightbox";
 import { galleryPhotos } from "../data/photos";
-import { SPAN_PATTERN } from "./Gallery";
 
 const TEASER_PHOTOS = galleryPhotos.slice(0, 4);
 
@@ -45,12 +44,11 @@ export default function GalleryTeaser() {
           </Link>
         </motion.div>
 
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-12 md:gap-6">
+        <div className="columns-2 gap-x-5 md:columns-3 md:gap-x-6 lg:columns-4">
           {TEASER_PHOTOS.map((photo, i) => (
             <GalleryCard
               key={photo.id}
               photo={photo}
-              wide={SPAN_PATTERN[i % SPAN_PATTERN.length] === 7}
               delay={(i % 4) * 0.08}
               onClick={() => setLightboxIndex(i)}
             />

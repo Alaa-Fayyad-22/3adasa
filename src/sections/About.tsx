@@ -54,7 +54,7 @@ export default function About() {
             <p>
              Give me a camera and see what happens.
 
-That's about the closest thing I have to a specialty. I'm based in Beirut, and over the past few years I've shot portraits, weddings, street scenes, travel shots — basically whatever's in front of me when the light's right. I've never really seen the point in picking one lane.
+That's about the closest thing I have to a specialty. I'm based in Beirut, and over the past few years I've shot portraits, weddings, street scenes, landscape shots — basically whatever's in front of me when the light's right. I've never really seen the point in picking one lane.
             </p>
             <p>
             

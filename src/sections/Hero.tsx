@@ -5,7 +5,7 @@ import Navbar from "../components/Navbar";
 import { heroImages, photographer } from "../data/photos";
 import { Link } from "react-router-dom";
 
-const SLIDE_DURATION = 5500;
+const SLIDE_DURATION = 3500;
 
 export default function Hero() {
   const [slideIndex, setSlideIndex] = useState(0);
@@ -106,15 +106,15 @@ export default function Hero() {
             </span>
           {/* </button> */}
 
-          <Link
-            to="/reservation"
+          <a
+            href={`#`}
             className="group relative rounded-full text-sm font-medium transition-transform hover:scale-105"
           >
             <span className="accent-gradient absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             <span className="relative flex items-center justify-center rounded-full border-2 border-stroke bg-bg px-7 py-3.5 text-text-primary transition-colors duration-300 group-hover:border-transparent">
               Book a Session
             </span>
-          </Link>
+          </a>
         </div>
       </div>
 

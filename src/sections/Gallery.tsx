@@ -4,8 +4,6 @@ import GalleryCard from "../components/GalleryCard";
 import Lightbox from "../components/Lightbox";
 import { categories, galleryPhotos } from "../data/photos";
 
-export const SPAN_PATTERN = [7, 5, 5, 7];
-
 export default function Gallery() {
   const [activeCategory, setActiveCategory] =
     useState<(typeof categories)[number]>("All");
@@ -13,7 +11,7 @@ export default function Gallery() {
 
   const filtered = useMemo(() => {
     if (activeCategory === "All") return galleryPhotos;
-    return galleryPhotos.filter((p) => p.category === activeCategory);
+    return galleryPhotos.filter((p) => p.categories.includes(activeCategory));
   }, [activeCategory]);
 
   return (
@@ -66,12 +64,11 @@ export default function Gallery() {
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-12 md:gap-6">
+        <div className="columns-2 gap-x-5 md:columns-3 md:gap-x-6 lg:columns-4">
           {filtered.map((photo, i) => (
             <GalleryCard
               key={photo.id}
               photo={photo}
-              wide={SPAN_PATTERN[i % SPAN_PATTERN.length] === 7}
               delay={(i % 4) * 0.08}
               onClick={() => setLightboxIndex(i)}
             />
