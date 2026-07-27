@@ -203,7 +203,12 @@ export default function LocationPicker({ value, onChange }: LocationPickerProps)
     <div className="space-y-3">
       <div
         ref={autocompleteContainerRef}
-        className="w-full overflow-hidden rounded-xl border border-stroke bg-surface [&_gmp-place-autocomplete]:w-full"
+        // No overflow-hidden here — the suggestion dropdown renders below
+        // this element and would otherwise be invisibly clipped by it
+        // (confirmed live: predictions were rendering correctly all along,
+        // just cut off). Elevated z-index so it layers above the map/Notes
+        // fields below instead of being visually covered by them.
+        className="relative z-20 w-full rounded-xl border border-stroke bg-surface [&_gmp-place-autocomplete]:w-full"
       />
       <div
         ref={mapContainerRef}
