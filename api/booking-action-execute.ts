@@ -1,11 +1,7 @@
 import type { VercelRequest, VercelResponse } from "./_lib/types.js";
 import { verifyActionToken } from "./_lib/actionToken.js";
 import { getSupabaseAdmin } from "./_lib/supabaseAdmin.js";
-import { sendWhatsAppTemplate } from "./_lib/whatsapp.js";
 import { getJsonBody } from "./_lib/request.js";
-import { formatBeirutTime } from "../src/lib/timezone.js";
-
-const TEMPLATE_BOOKING_CONFIRMED = process.env.TWILIO_TEMPLATE_BOOKING_CONFIRMED ?? "";
 
 // The one state-changing endpoint in this flow — deliberately POST-only and
 // only reachable from an explicit button press on /booking-action (never
@@ -100,25 +96,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(500).json({ error: "Something went wrong. Please try again." });
   }
 
-  if (verified.action === "confirm") {
-    const sessionDateLabel = formatBeirutTime(existing.session_date);
-    const result = await sendWhatsAppTemplate(existing.client_phone, TEMPLATE_BOOKING_CONFIRMED, {
-      "1": existing.client_name,
-      "2": sessionDateLabel,
-      "3": existing.session_location,
-      "4": existing.session_type,
-    });
-    if (!result.success && !result.skipped) {
-      console.error(
-        `[booking-action-execute] confirmation message to ${existing.client_phone} failed:`,
-        result.error
-      );
-    }
-  }
-
+  // No automated send here (Twilio removed) — on confirm, the frontend
+  // builds a click-to-chat (wa.me) link to the client from the fields
+  // below and the photographer sends it themselves with one tap.
   return res.status(200).json({
     status: updated.status,
     alreadyHandled: false,
     client_name: updated.client_name,
+    ...(verified.action === "confirm"
+      ? {
+          client_phone: existing.client_phone,
+          session_date: existing.session_date,
+          session_type: existing.session_type,
+          session_location: existing.session_location,
+        }
+      : {}),
   });
 }

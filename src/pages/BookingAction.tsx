@@ -4,6 +4,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Seo from "../components/Seo";
 import { formatBeirutTime } from "../lib/timezone";
+import { buildWhatsAppLink } from "../lib/whatsappLink";
 
 type BookingAction = "confirm" | "decline";
 type ReservationStatus = "pending" | "confirmed" | "cancelled";
@@ -15,6 +16,17 @@ type InfoResponse = {
   session_date: string;
   session_type: string;
   session_location: string;
+  session_location_maps_url: string;
+};
+
+type ExecuteResponse = {
+  status: ReservationStatus;
+  alreadyHandled: boolean;
+  client_name: string;
+  client_phone?: string;
+  session_date?: string;
+  session_type?: string;
+  session_location?: string;
 };
 
 type Phase = "loading" | "error" | "ready" | "submitting" | "done";
@@ -35,7 +47,7 @@ export default function BookingAction() {
   const [phase, setPhase] = useState<Phase>("loading");
   const [info, setInfo] = useState<InfoResponse | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [doneStatus, setDoneStatus] = useState<ReservationStatus | null>(null);
+  const [result, setResult] = useState<ExecuteResponse | null>(null);
 
   useEffect(() => {
     if (!token) {
@@ -91,7 +103,7 @@ export default function BookingAction() {
         return;
       }
 
-      setDoneStatus(data.status);
+      setResult(data);
       setPhase("done");
     } catch {
       setErrorMessage("Network error. Please check your connection and try again.");
@@ -121,16 +133,35 @@ export default function BookingAction() {
           </div>
         )}
 
-        {phase === "done" && doneStatus && (
+        {phase === "done" && result && (
           <div className={cardClassName}>
             <p className="font-display text-2xl italic text-text-primary">
-              {doneStatus === "confirmed" ? "Booking confirmed" : "Booking declined"}
+              {result.status === "confirmed" ? "Booking confirmed" : "Booking declined"}
             </p>
             <p className="mt-3 text-sm text-muted md:text-base">
-              {doneStatus === "confirmed"
-                ? `${info?.client_name ?? "The client"} has been notified.`
+              {result.status === "confirmed"
+                ? `Let ${result.client_name} know on WhatsApp.`
                 : "The client has not been notified automatically — reach out directly if needed."}
             </p>
+
+            {result.status === "confirmed" && result.client_phone && result.session_date && (
+              <a
+                href={buildWhatsAppLink(
+                  result.client_phone,
+                  `Hi ${result.client_name}! Your ${result.session_type} session on ` +
+                    `${formatBeirutTime(result.session_date)} at ${result.session_location} is confirmed. ` +
+                    `Looking forward to it!`
+                )}
+                target="_blank"
+                rel="noreferrer"
+                className="group relative mt-6 inline-block rounded-full text-sm font-medium transition-transform hover:scale-105"
+              >
+                <span className="accent-gradient absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                <span className="relative flex items-center justify-center rounded-full bg-text-primary px-7 py-3.5 text-bg transition-colors duration-300 group-hover:bg-bg group-hover:text-text-primary">
+                  Message {result.client_name} on WhatsApp
+                </span>
+              </a>
+            )}
           </div>
         )}
 
@@ -161,7 +192,16 @@ export default function BookingAction() {
                   </div>
                   <div className="flex justify-between gap-4">
                     <dt className="text-muted">Location</dt>
-                    <dd className="text-right">{info.session_location}</dd>
+                    <dd className="text-right">
+                      <a
+                        href={info.session_location_maps_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="underline decoration-muted underline-offset-2 hover:text-text-primary"
+                      >
+                        {info.session_location}
+                      </a>
+                    </dd>
                   </div>
                 </dl>
 

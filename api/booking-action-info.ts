@@ -36,7 +36,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const { data: reservation, error } = await supabaseAdmin
     .from("reservations")
-    .select("client_name, session_date, session_type, session_location, status")
+    .select("client_name, session_date, session_type, session_location, session_location_maps_url, status")
     .eq("id", verified.id)
     .single();
 
@@ -51,5 +51,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     session_date: reservation.session_date,
     session_type: reservation.session_type,
     session_location: reservation.session_location,
+    session_location_maps_url: reservation.session_location_maps_url,
   });
 }

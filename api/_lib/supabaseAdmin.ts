@@ -2,8 +2,8 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 // Server-only. Never import this file from anything under /src — the
 // service role key bypasses Row Level Security entirely, which is exactly
-// why /api/reservations.ts and /api/send-reminders.ts are the only code
-// paths allowed to touch the reservations table (see the RLS policy in
+// why the api/ handlers are the only code paths allowed to touch the
+// reservations table (see the RLS policy in
 // supabase/migrations/0001_reservations.sql: zero public policies).
 let client: SupabaseClient | null = null;
 
@@ -39,6 +39,9 @@ export type ReservationRow = {
   session_date: string;
   session_type: string;
   session_location: string;
+  session_location_lat: number | null;
+  session_location_lng: number | null;
+  session_location_maps_url: string;
   notes: string | null;
   status: "pending" | "confirmed" | "cancelled";
   client_reminded_at: string | null;

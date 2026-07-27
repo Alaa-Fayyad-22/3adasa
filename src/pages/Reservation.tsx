@@ -3,10 +3,14 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Seo from "../components/Seo";
 import TurnstileWidget from "../components/Turnstile";
+import LocationPicker, { isLocationSelected, type LocationValue } from "../components/LocationPicker";
 import { reservationSchema, SESSION_TYPES } from "../lib/reservationSchema";
-import { beirutLocalToUtcIso } from "../lib/timezone";
+import { beirutLocalToUtcIso, formatBeirutTime } from "../lib/timezone";
+import { buildWhatsAppLink } from "../lib/whatsappLink";
 
 const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined;
+
+const initialLocation: LocationValue = { address: "", lat: null, lng: null, mapsUrl: null };
 
 const inputClassName =
   "w-full rounded-xl border border-stroke bg-surface px-4 py-3 text-sm text-text-primary placeholder:text-muted transition-colors focus:border-text-primary/50 focus:outline-none";
@@ -19,7 +23,7 @@ type FormState = {
   client_email: string;
   session_type: (typeof SESSION_TYPES)[number] | "";
   session_date_local: string;
-  session_location: string;
+  session_location: LocationValue;
   notes: string;
 };
 
@@ -29,11 +33,17 @@ const initialForm: FormState = {
   client_email: "",
   session_type: "",
   session_date_local: "",
-  session_location: "",
+  session_location: initialLocation,
   notes: "",
 };
 
 type Status = "idle" | "submitting" | "success" | "error";
+
+type BookingResult = {
+  confirmUrl: string | null;
+  declineUrl: string | null;
+  photographerWhatsapp: string | null;
+};
 
 export default function Reservation() {
   const [form, setForm] = useState<FormState>(initialForm);
@@ -41,6 +51,12 @@ export default function Reservation() {
   const [status, setStatus] = useState<Status>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [bookingResult, setBookingResult] = useState<BookingResult | null>(null);
+  const [lastBooking, setLastBooking] = useState<{
+    session_type: string;
+    session_date: string;
+    session_location: string;
+  } | null>(null);
 
   const minDateTimeLocal = useMemo(() => {
     const now = new Date();
@@ -62,6 +78,13 @@ export default function Reservation() {
       return;
     }
 
+    if (!isLocationSelected(form.session_location)) {
+      setFieldErrors({
+        session_location: ["Search for a location or drop a pin on the map."],
+      });
+      return;
+    }
+
     const sessionDateIso = beirutLocalToUtcIso(form.session_date_local);
 
     // Client-side validation is for UX only — the real security boundary is
@@ -72,7 +95,10 @@ export default function Reservation() {
       client_email: form.client_email,
       session_type: form.session_type,
       session_date: sessionDateIso,
-      session_location: form.session_location,
+      session_location: form.session_location.address,
+      session_location_lat: form.session_location.lat,
+      session_location_lng: form.session_location.lng,
+      session_location_maps_url: form.session_location.mapsUrl,
       notes: form.notes,
     });
 
@@ -102,6 +128,16 @@ export default function Reservation() {
       const data = await res.json();
 
       if (res.ok) {
+        setBookingResult({
+          confirmUrl: data.confirmUrl ?? null,
+          declineUrl: data.declineUrl ?? null,
+          photographerWhatsapp: data.photographerWhatsapp ?? null,
+        });
+        setLastBooking({
+          session_type: parsed.data.session_type,
+          session_date: parsed.data.session_date,
+          session_location: parsed.data.session_location,
+        });
         setStatus("success");
         setForm(initialForm);
         setTurnstileToken(null);
@@ -129,7 +165,7 @@ export default function Reservation() {
     <>
       <Seo
         title="Book a Photography Session"
-        description="Reserve a portrait, street, landscape, or event photography session with Jad Daou in Beirut. Pick a date and get a WhatsApp confirmation."
+        description="Reserve a portrait, street, landscape, or event photography session with Jad Daou in Beirut. Pick a date, drop a pin, and message on WhatsApp."
       />
       <Navbar />
       <main className="min-h-screen bg-bg px-6 pb-24 pt-24 md:pt-32">
@@ -141,8 +177,8 @@ export default function Reservation() {
             Book a session
           </h1>
           <p className="mt-6 max-w-md text-sm text-muted md:text-base">
-            Tell us a bit about the session you have in mind. You&apos;ll get a
-            WhatsApp confirmation once it&apos;s received.
+            Tell us a bit about the session you have in mind. You&apos;ll be
+            able to notify the photographer on WhatsApp right after booking.
           </p>
         </div>
 
@@ -152,16 +188,45 @@ export default function Reservation() {
               Booking received
             </p>
             <p className="mt-3 text-sm text-muted md:text-base">
-              You&apos;ll get a WhatsApp confirmation shortly, and another
-              reminder the day before your session.
+              One last step — let the photographer know on WhatsApp so they can
+              confirm.
             </p>
-            <button
-              type="button"
-              onClick={() => setStatus("idle")}
-              className="mt-6 text-sm text-muted underline-offset-4 transition-colors hover:text-text-primary hover:underline"
-            >
-              Book another session
-            </button>
+
+            {bookingResult?.photographerWhatsapp &&
+              bookingResult.confirmUrl &&
+              bookingResult.declineUrl &&
+              lastBooking && (
+                <a
+                  href={buildWhatsAppLink(
+                    bookingResult.photographerWhatsapp,
+                    `Hi! I just requested a ${lastBooking.session_type} session on ` +
+                      `${formatBeirutTime(lastBooking.session_date)} at ${lastBooking.session_location}.\n\n` +
+                      `Please confirm or decline:\nConfirm: ${bookingResult.confirmUrl}\nDecline: ${bookingResult.declineUrl}`
+                  )}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group relative mt-6 inline-block rounded-full text-sm font-medium transition-transform hover:scale-105"
+                >
+                  <span className="accent-gradient absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                  <span className="relative flex items-center justify-center rounded-full bg-text-primary px-7 py-3.5 text-bg transition-colors duration-300 group-hover:bg-bg group-hover:text-text-primary">
+                    Notify photographer on WhatsApp
+                  </span>
+                </a>
+              )}
+
+            <div>
+              <button
+                type="button"
+                onClick={() => {
+                  setStatus("idle");
+                  setBookingResult(null);
+                  setLastBooking(null);
+                }}
+                className="mt-6 text-sm text-muted underline-offset-4 transition-colors hover:text-text-primary hover:underline"
+              >
+                Book another session
+              </button>
+            </div>
           </div>
         ) : (
           <form
@@ -275,16 +340,10 @@ export default function Reservation() {
             </div>
 
             <div>
-              <label htmlFor="session_location" className={labelClassName}>
-                Session location
-              </label>
-              <input
-                id="session_location"
-                type="text"
+              <label className={labelClassName}>Session location</label>
+              <LocationPicker
                 value={form.session_location}
-                onChange={(e) => updateField("session_location", e.target.value)}
-                className={inputClassName}
-                placeholder="e.g. Raouché, Beirut"
+                onChange={(value) => updateField("session_location", value)}
               />
               {fieldErrors.session_location && (
                 <p className="mt-1.5 text-xs text-red-400">{fieldErrors.session_location[0]}</p>

@@ -1,19 +1,14 @@
 import { z } from "zod";
 import { reservationSchema } from "../src/lib/reservationSchema.js";
-import { formatBeirutTime } from "../src/lib/timezone.js";
 import type { VercelRequest, VercelResponse } from "./_lib/types.js";
 import { getClientIp, getJsonBody } from "./_lib/request.js";
 import { verifyTurnstile } from "./_lib/turnstile.js";
 import { checkRateLimit } from "./_lib/ratelimit.js";
 import { getSupabaseAdmin } from "./_lib/supabaseAdmin.js";
-import { sendWhatsAppTemplate } from "./_lib/whatsapp.js";
 import { generateActionToken } from "./_lib/actionToken.js";
 import { resolveSiteUrl } from "../scripts/site-url.js";
 
 const PHOTOGRAPHER_WHATSAPP_NUMBER = process.env.PHOTOGRAPHER_WHATSAPP_NUMBER;
-const TEMPLATE_BOOKING_RECEIVED = process.env.TWILIO_TEMPLATE_BOOKING_RECEIVED ?? "";
-const TEMPLATE_BOOKING_RECEIVED_PHOTOGRAPHER =
-  process.env.TWILIO_TEMPLATE_BOOKING_RECEIVED_PHOTOGRAPHER ?? "";
 
 const createReservationSchema = reservationSchema.extend({
   turnstile_token: z.string().min(1, "Missing verification token."),
@@ -104,6 +99,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       session_date: input.session_date,
       session_type: input.session_type,
       session_location: input.session_location,
+      session_location_lat: input.session_location_lat,
+      session_location_lng: input.session_location_lng,
+      session_location_maps_url: input.session_location_maps_url,
       notes: normalizedNotes,
     })
     .select("id, status")
@@ -121,17 +119,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(500).json({ error: "Something went wrong. Please try again." });
   }
 
-  // 7. Immediate "booking received" WhatsApp confirmation — client and
-  //    photographer. A failed/unconfigured send must not fail the booking,
-  //    which is already saved at this point.
-  const sessionDateLabel = formatBeirutTime(input.session_date);
-
-  // Magic-link confirm/decline tokens for the photographer's message. Signing
-  // requires BOOKING_ACTION_SECRET; if it isn't set yet, skip the links and
-  // fall back to the plain booking-received message below — same
-  // graceful-degrade pattern as every other not-yet-configured integration
-  // here. Once BOOKING_ACTION_SECRET (and TWILIO_TEMPLATE_BOOKING_RECEIVED_
-  // PHOTOGRAPHER) are set, this activates automatically, no code change.
+  // 7. Magic-link confirm/decline tokens for the photographer. No automated
+  //    send happens here anymore (Twilio removed) — the client's own
+  //    browser builds a click-to-chat (wa.me) link from these URLs and the
+  //    client sends it themselves. Signing requires BOOKING_ACTION_SECRET;
+  //    if it isn't set, links come back null and the frontend just hides
+  //    the "notify photographer" button.
   let confirmUrl: string | null = null;
   let declineUrl: string | null = null;
   try {
@@ -142,37 +135,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     console.warn("[reservations] BOOKING_ACTION_SECRET not set — booking-action links skipped:", err);
   }
 
-  const photographerSend = !PHOTOGRAPHER_WHATSAPP_NUMBER
-    ? Promise.resolve({ success: false, skipped: true })
-    : confirmUrl && declineUrl && TEMPLATE_BOOKING_RECEIVED_PHOTOGRAPHER
-      ? sendWhatsAppTemplate(PHOTOGRAPHER_WHATSAPP_NUMBER, TEMPLATE_BOOKING_RECEIVED_PHOTOGRAPHER, {
-          "1": input.client_name,
-          "2": input.session_type,
-          "3": sessionDateLabel,
-          "4": confirmUrl,
-          "5": declineUrl,
-        })
-      : sendWhatsAppTemplate(PHOTOGRAPHER_WHATSAPP_NUMBER, TEMPLATE_BOOKING_RECEIVED, {
-          "1": input.client_name,
-          "2": input.session_type,
-          "3": sessionDateLabel,
-        });
-
-  const confirmations = await Promise.allSettled([
-    sendWhatsAppTemplate(input.client_phone, TEMPLATE_BOOKING_RECEIVED, {
-      "1": input.client_name,
-      "2": input.session_type,
-      "3": sessionDateLabel,
-    }),
-    photographerSend,
-  ]);
-
-  confirmations.forEach((result, i) => {
-    if (result.status === "rejected") {
-      console.error(`[reservations] confirmation message ${i} threw:`, result.reason);
-    }
+  // 8. Minimal response — client contact details/notes are never echoed
+  //    back, but the confirm/decline links and the photographer's number
+  //    are needed client-side to build the click-to-chat message.
+  return res.status(201).json({
+    id: inserted.id,
+    status: inserted.status,
+    confirmUrl,
+    declineUrl,
+    photographerWhatsapp: PHOTOGRAPHER_WHATSAPP_NUMBER ?? null,
   });
-
-  // 8. Minimal response — never echo back client contact details or notes.
-  return res.status(201).json({ id: inserted.id, status: inserted.status });
 }

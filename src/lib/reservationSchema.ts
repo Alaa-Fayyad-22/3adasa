@@ -46,6 +46,9 @@ export const reservationSchema = z.object({
     .trim()
     .min(1, "Enter where the session will take place.")
     .max(200, "Location is too long."),
+  session_location_lat: z.number().min(-90).max(90),
+  session_location_lng: z.number().min(-180).max(180),
+  session_location_maps_url: z.string().url("Invalid location link."),
   notes: z.string().trim().max(1000, "Notes are too long.").optional().or(z.literal("")),
 });
 
