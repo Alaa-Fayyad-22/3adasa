@@ -29,11 +29,11 @@ let scriptPromise: Promise<void> | null = null;
 
 // Loads the base Maps JS API script once, with the exact libraries this
 // component needs declared upfront via the classic `libraries=` URL param —
-// deliberately not the newer `importLibrary`/`loading=async` pattern, whose
-// readiness `script.onload` does NOT reliably signal (the script can still
-// be finishing internal async setup after `onload` fires). The `callback=`
-// URL param is the one signal Google's own script guarantees fires only
-// once everything named in `libraries=` is actually ready to use.
+// deliberately not the newer `importLibrary` pattern, whose readiness
+// `script.onload` does NOT reliably signal (the script can still be
+// finishing internal async setup after `onload` fires). The `callback=` URL
+// param is the one signal Google's own script guarantees fires only once
+// everything named in `libraries=` is actually ready to use.
 // https://developers.google.com/maps/documentation/javascript/load-maps-js-api
 function loadGoogleMapsScript(apiKey: string): Promise<void> {
   // @types/google.maps declares `google` as an always-present ambient
@@ -50,7 +50,7 @@ function loadGoogleMapsScript(apiKey: string): Promise<void> {
     const params = new URLSearchParams({
       key: apiKey,
       v: "weekly",
-      libraries: "places,marker",
+      libraries: "places",
       callback: callbackName,
       loading: "async",
     });
@@ -72,9 +72,14 @@ export default function LocationPicker({ value, onChange }: LocationPickerProps)
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const autocompleteContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
-  const markerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
+  const markerRef = useRef<google.maps.Marker | null>(null);
+  const geocoderRef = useRef<google.maps.Geocoder | null>(null);
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
+  // Mirrors `value` for use inside Maps event listeners set up once at mount
+  // — those closures would otherwise only ever see the initial empty value.
+  const valueRef = useRef(value);
+  valueRef.current = value;
 
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
 
@@ -91,58 +96,67 @@ export default function LocationPicker({ value, onChange }: LocationPickerProps)
         await loadGoogleMapsScript(GOOGLE_MAPS_API_KEY);
         if (cancelled || !mapContainerRef.current || !autocompleteContainerRef.current) return;
 
-        const { Map } = google.maps;
-        const { AdvancedMarkerElement } = google.maps.marker;
+        const { Map, Marker, Geocoder } = google.maps;
         const { PlaceAutocompleteElement } = google.maps.places;
 
+        // Deliberately the legacy Marker, not the newer AdvancedMarkerElement:
+        // AdvancedMarkerElement requires a `mapId` and vector rendering, and
+        // in testing the map's rendering type got stuck at "UNINITIALIZED"
+        // with that combination — it displayed a static-looking tile with
+        // zero interactivity (no click/drag events ever reached it, silently
+        // — no console error). Marker has no such requirement and works on
+        // the standard raster renderer this map otherwise uses.
         const map = new Map(mapContainerRef.current, {
           center: DEFAULT_CENTER,
           zoom: DEFAULT_ZOOM,
-          mapId: "DEMO_MAP_ID", // Advanced Markers require a map ID; DEMO_MAP_ID works
-          // out of the box with default styling — swap for a real Map ID
-          // (Cloud Console > Maps Platform > Map Management) for custom styling.
           streetViewControl: false,
           mapTypeControl: false,
           fullscreenControl: false,
         });
         mapRef.current = map;
-        (window as unknown as Record<string, unknown>).__debugMap = map;
+        geocoderRef.current = new Geocoder();
+
+        function reverseGeocode(lat: number, lng: number) {
+          geocoderRef.current?.geocode({ location: { lat, lng } }, (results, geocodeStatus) => {
+            if (geocodeStatus !== "OK" || !results?.[0]) {
+              console.warn("[location-picker] reverse geocoding failed:", geocodeStatus);
+              return;
+            }
+            onChangeRef.current({
+              ...valueRef.current,
+              address: results[0].formatted_address,
+            });
+          });
+        }
 
         function placeMarker(position: google.maps.LatLngLiteral) {
           if (markerRef.current) {
-            markerRef.current.position = position;
+            markerRef.current.setPosition(position);
           } else {
-            const marker = new AdvancedMarkerElement({ map, position, gmpDraggable: true });
+            const marker = new Marker({ map, position, draggable: true });
             marker.addListener("dragend", () => {
-              const pos = marker.position;
+              const pos = marker.getPosition();
               if (!pos) return;
-              const lat = typeof pos.lat === "function" ? pos.lat() : pos.lat;
-              const lng = typeof pos.lng === "function" ? pos.lng() : pos.lng;
-              // Only the pin position / maps link move on drag — the address
-              // text stays whatever Places Autocomplete resolved. Re-deriving
-              // a human-readable address from coordinates needs the
-              // Geocoding API, which isn't part of this project's enabled
-              // APIs (only Maps JavaScript API + Places API (New)).
-              onChangeRef.current({
-                ...value,
-                lat,
-                lng,
-                mapsUrl: buildMapsUrl(lat, lng),
-              });
+              const lat = pos.lat();
+              const lng = pos.lng();
+              onChangeRef.current({ ...valueRef.current, lat, lng, mapsUrl: buildMapsUrl(lat, lng) });
+              reverseGeocode(lat, lng);
             });
             markerRef.current = marker;
           }
         }
 
         // Click anywhere on the map as a fallback way to place/move the pin,
-        // in addition to dragging it — same "address text stays put" rule.
+        // in addition to dragging it. Both paths reverse-geocode the new
+        // position into a real address (Geocoding API — must be enabled on
+        // the same Google Cloud project as Maps JavaScript API / Places).
         map.addListener("click", (e: google.maps.MapMouseEvent) => {
-          console.log("[location-picker] DEBUG map click fired", e.latLng?.toJSON());
           if (!e.latLng) return;
           const lat = e.latLng.lat();
           const lng = e.latLng.lng();
           placeMarker({ lat, lng });
-          onChangeRef.current({ ...value, lat, lng, mapsUrl: buildMapsUrl(lat, lng) });
+          onChangeRef.current({ ...valueRef.current, lat, lng, mapsUrl: buildMapsUrl(lat, lng) });
+          reverseGeocode(lat, lng);
         });
 
         const autocomplete = new PlaceAutocompleteElement();
