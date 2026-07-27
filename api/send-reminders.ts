@@ -81,7 +81,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const reservations = (due ?? []) as ReservationRow[];
-  const results: { id: string; clientOk: boolean; photographerOk: boolean }[] = [];
+  const results: { id: string; clientHandled: boolean; photographerHandled: boolean }[] = [];
 
   // Process each reservation independently — one failure must not stop the
   // rest of the batch. Promise.allSettled at the outer level, and each
@@ -107,10 +107,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           : Promise.resolve({ success: false, skipped: true }),
       ]);
 
+      // "Handled" means the reminder is genuinely done with this recipient —
+      // either the message actually sent, or it was gracefully skipped
+      // (Twilio/PHOTOGRAPHER_WHATSAPP_NUMBER not configured yet). Both cases
+      // must mark reminded_at, or an unconfigured Twilio would leave every
+      // row perpetually eligible and re-"sent" on every future cron run.
+      // Only a genuine send error should leave the flag unset for retry.
+      const clientHandled = clientResult.success || !!clientResult.skipped;
+      const photographerHandled = photographerResult.success || !!photographerResult.skipped;
+
       const nowIso = new Date().toISOString();
       const update: Partial<ReservationRow> = {};
-      if (clientResult.success) update.client_reminded_at = nowIso;
-      if (photographerResult.success) update.photographer_reminded_at = nowIso;
+      if (clientHandled) update.client_reminded_at = nowIso;
+      if (photographerHandled) update.photographer_reminded_at = nowIso;
 
       if (Object.keys(update).length > 0) {
         const { error: updateError } = await supabaseAdmin
@@ -127,8 +136,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       results.push({
         id: reservation.id,
-        clientOk: clientResult.success,
-        photographerOk: photographerResult.success,
+        clientHandled,
+        photographerHandled,
       });
     })
   );
@@ -142,9 +151,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
   });
 
-  const failed = results.filter((r) => !r.clientOk || !r.photographerOk);
+  const failed = results.filter((r) => !r.clientHandled || !r.photographerHandled);
   if (failed.length > 0) {
-    console.warn("[send-reminders] some sends did not succeed:", failed);
+    console.warn("[send-reminders] some reservations had a genuine send failure:", failed);
   }
 
   return res.status(200).json({
