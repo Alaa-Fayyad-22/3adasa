@@ -28,28 +28,33 @@ function buildMapsUrl(lat: number, lng: number): string {
 let scriptPromise: Promise<void> | null = null;
 
 // Loads the base Maps JS API script once, with the exact libraries this
-// component needs baked into the initial request (simpler than Google's
-// official dynamic-import bootstrap snippet, which exists to support
-// callers that don't know their library set upfront — this one does).
+// component needs declared upfront via the classic `libraries=` URL param —
+// deliberately not the newer `importLibrary`/`loading=async` pattern, whose
+// readiness `script.onload` does NOT reliably signal (the script can still
+// be finishing internal async setup after `onload` fires). The `callback=`
+// URL param is the one signal Google's own script guarantees fires only
+// once everything named in `libraries=` is actually ready to use.
 // https://developers.google.com/maps/documentation/javascript/load-maps-js-api
 function loadGoogleMapsScript(apiKey: string): Promise<void> {
   // @types/google.maps declares `google` as an always-present ambient
   // global, so it can't itself express "the script hasn't loaded yet" —
   // this cast is only to check that pre-load state honestly.
-  if ((window as { google?: typeof google }).google?.maps?.importLibrary) return Promise.resolve();
+  if ((window as { google?: typeof google }).google?.maps?.Map) return Promise.resolve();
   if (scriptPromise) return scriptPromise;
 
   scriptPromise = new Promise((resolve, reject) => {
+    const callbackName = "__locationPickerGoogleMapsReady";
+    (window as unknown as Record<string, () => void>)[callbackName] = () => resolve();
+
     const script = document.createElement("script");
     const params = new URLSearchParams({
       key: apiKey,
       v: "weekly",
-      libraries: "maps,marker,places",
-      loading: "async",
+      libraries: "places,marker",
+      callback: callbackName,
     });
     script.src = `https://maps.googleapis.com/maps/api/js?${params}`;
     script.async = true;
-    script.onload = () => resolve();
     script.onerror = () => reject(new Error("The Google Maps JavaScript API could not load."));
     document.head.append(script);
   });
@@ -83,13 +88,11 @@ export default function LocationPicker({ value, onChange }: LocationPickerProps)
     (async () => {
       try {
         await loadGoogleMapsScript(GOOGLE_MAPS_API_KEY);
-        const [{ Map }, { AdvancedMarkerElement }, { PlaceAutocompleteElement }] = await Promise.all([
-          google.maps.importLibrary("maps") as Promise<google.maps.MapsLibrary>,
-          google.maps.importLibrary("marker") as Promise<google.maps.MarkerLibrary>,
-          google.maps.importLibrary("places") as Promise<google.maps.PlacesLibrary>,
-        ]);
-
         if (cancelled || !mapContainerRef.current || !autocompleteContainerRef.current) return;
+
+        const { Map } = google.maps;
+        const { AdvancedMarkerElement } = google.maps.marker;
+        const { PlaceAutocompleteElement } = google.maps.places;
 
         const map = new Map(mapContainerRef.current, {
           center: DEFAULT_CENTER,
