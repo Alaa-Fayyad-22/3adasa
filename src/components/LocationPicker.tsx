@@ -52,6 +52,7 @@ function loadGoogleMapsScript(apiKey: string): Promise<void> {
       v: "weekly",
       libraries: "places,marker",
       callback: callbackName,
+      loading: "async",
     });
     script.src = `https://maps.googleapis.com/maps/api/js?${params}`;
     script.async = true;
