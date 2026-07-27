@@ -3,7 +3,7 @@ import Footer from "../components/Footer";
 import Seo from "../components/Seo";
 import JsonLd from "../components/JsonLd";
 import AboutSection from "../sections/About";
-import { absoluteUrl } from "../lib/seo";
+import { absoluteUrl, AREA_SERVED } from "../lib/seo";
 import { aboutPortrait, photographer } from "../data/photos";
 
 export default function About() {
@@ -25,6 +25,7 @@ export default function About() {
             "@type": "PostalAddress",
             addressLocality: photographer.city,
           },
+          areaServed: AREA_SERVED,
         }}
       />
       <Navbar />

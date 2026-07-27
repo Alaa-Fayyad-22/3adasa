@@ -46,6 +46,10 @@ export default function BlogPost() {
             "@type": "Person",
             name: photographer.name,
           },
+          publisher: {
+            "@type": "Person",
+            name: photographer.name,
+          },
         }}
       />
       <Navbar />
@@ -68,12 +72,14 @@ export default function BlogPost() {
             {post.title}
           </h1>
 
-          <div className="mb-10 aspect-[16/9] overflow-hidden rounded-3xl border border-stroke bg-surface">
+          <div className="mb-10 aspect-[4/3] overflow-hidden rounded-3xl border border-stroke bg-surface">
             <img
               src={post.coverImage}
-              alt={post.title}
+              alt={post.coverAlt}
               loading="lazy"
-              className="h-full w-full object-cover"
+              className={`h-full w-full object-cover ${
+                post.coverFocus === "top" ? "object-top" : "object-center"
+              }`}
             />
           </div>
 

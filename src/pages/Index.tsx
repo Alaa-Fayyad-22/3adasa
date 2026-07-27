@@ -5,7 +5,7 @@ import LoadingScreen from "../components/LoadingScreen";
 import Footer from "../components/Footer";
 import Seo from "../components/Seo";
 import JsonLd from "../components/JsonLd";
-import { absoluteUrl } from "../lib/seo";
+import { absoluteUrl, AREA_SERVED } from "../lib/seo";
 import { aboutPortrait, photographer } from "../data/photos";
 import Hero from "../sections/Hero";
 import AboutTeaser from "../sections/AboutTeaser";
@@ -36,8 +36,8 @@ export default function Index() {
   return (
     <>
       <Seo
-        title="Jad Daou Photography — Portraits & Street in Beirut"
-        description="Jad Daou is a Beirut-based photographer shooting portraits, street scenes, landscape, and events. Browse the full photography portfolio and book a session."
+        title="Jad Daou — Photographer in Beirut & across Lebanon"
+        description="Jad Daou is a Beirut-based photographer shooting portraits, street, landscape, and events across Lebanon. Browse the full portfolio and book a session."
         suffixSiteName={false}
       />
       <JsonLd
@@ -52,6 +52,7 @@ export default function Index() {
             "@type": "PostalAddress",
             addressLocality: photographer.city,
           },
+          areaServed: AREA_SERVED,
         }}
       />
 

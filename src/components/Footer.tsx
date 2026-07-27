@@ -36,6 +36,10 @@ export default function Footer() {
             <img src="/logo-nav.png" alt={`${photographer.name} logo`} width={80} height={80} loading="lazy" className="object-contain" />
           </span>
           <p className="text-sm text-muted">{photographer.description}</p>
+          <p className="text-sm text-muted">
+            Based in Beirut, shooting across Lebanon — Chouf, Keserwan,
+            Mount Lebanon, the Bekaa, and beyond.
+          </p>
         </div>
 
         <div className="flex flex-col gap-3">
