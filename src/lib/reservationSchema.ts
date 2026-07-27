@@ -41,6 +41,11 @@ export const reservationSchema = z.object({
   session_type: z.enum(SESSION_TYPES, {
     message: "Choose a session type.",
   }),
+  session_location: z
+    .string()
+    .trim()
+    .min(1, "Enter where the session will take place.")
+    .max(200, "Location is too long."),
   notes: z.string().trim().max(1000, "Notes are too long.").optional().or(z.literal("")),
 });
 

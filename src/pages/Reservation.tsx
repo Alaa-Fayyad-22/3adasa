@@ -19,6 +19,7 @@ type FormState = {
   client_email: string;
   session_type: (typeof SESSION_TYPES)[number] | "";
   session_date_local: string;
+  session_location: string;
   notes: string;
 };
 
@@ -28,6 +29,7 @@ const initialForm: FormState = {
   client_email: "",
   session_type: "",
   session_date_local: "",
+  session_location: "",
   notes: "",
 };
 
@@ -70,6 +72,7 @@ export default function Reservation() {
       client_email: form.client_email,
       session_type: form.session_type,
       session_date: sessionDateIso,
+      session_location: form.session_location,
       notes: form.notes,
     });
 
@@ -272,6 +275,23 @@ export default function Reservation() {
             </div>
 
             <div>
+              <label htmlFor="session_location" className={labelClassName}>
+                Session location
+              </label>
+              <input
+                id="session_location"
+                type="text"
+                value={form.session_location}
+                onChange={(e) => updateField("session_location", e.target.value)}
+                className={inputClassName}
+                placeholder="e.g. Raouché, Beirut"
+              />
+              {fieldErrors.session_location && (
+                <p className="mt-1.5 text-xs text-red-400">{fieldErrors.session_location[0]}</p>
+              )}
+            </div>
+
+            <div>
               <label htmlFor="notes" className={labelClassName}>
                 Notes (optional)
               </label>
@@ -281,7 +301,7 @@ export default function Reservation() {
                 value={form.notes}
                 onChange={(e) => updateField("notes", e.target.value)}
                 className={inputClassName}
-                placeholder="Location, occasion, anything else worth knowing."
+                placeholder="Occasion, styling preferences, anything else worth knowing."
               />
               {fieldErrors.notes && (
                 <p className="mt-1.5 text-xs text-red-400">{fieldErrors.notes[0]}</p>

@@ -7,9 +7,13 @@ import { verifyTurnstile } from "./_lib/turnstile.js";
 import { checkRateLimit } from "./_lib/ratelimit.js";
 import { getSupabaseAdmin } from "./_lib/supabaseAdmin.js";
 import { sendWhatsAppTemplate } from "./_lib/whatsapp.js";
+import { generateActionToken } from "./_lib/actionToken.js";
+import { resolveSiteUrl } from "../scripts/site-url.js";
 
 const PHOTOGRAPHER_WHATSAPP_NUMBER = process.env.PHOTOGRAPHER_WHATSAPP_NUMBER;
 const TEMPLATE_BOOKING_RECEIVED = process.env.TWILIO_TEMPLATE_BOOKING_RECEIVED ?? "";
+const TEMPLATE_BOOKING_RECEIVED_PHOTOGRAPHER =
+  process.env.TWILIO_TEMPLATE_BOOKING_RECEIVED_PHOTOGRAPHER ?? "";
 
 const createReservationSchema = reservationSchema.extend({
   turnstile_token: z.string().min(1, "Missing verification token."),
@@ -99,6 +103,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       client_email: normalizedEmail,
       session_date: input.session_date,
       session_type: input.session_type,
+      session_location: input.session_location,
       notes: normalizedNotes,
     })
     .select("id, status")
@@ -121,19 +126,45 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   //    which is already saved at this point.
   const sessionDateLabel = formatBeirutTime(input.session_date);
 
+  // Magic-link confirm/decline tokens for the photographer's message. Signing
+  // requires BOOKING_ACTION_SECRET; if it isn't set yet, skip the links and
+  // fall back to the plain booking-received message below — same
+  // graceful-degrade pattern as every other not-yet-configured integration
+  // here. Once BOOKING_ACTION_SECRET (and TWILIO_TEMPLATE_BOOKING_RECEIVED_
+  // PHOTOGRAPHER) are set, this activates automatically, no code change.
+  let confirmUrl: string | null = null;
+  let declineUrl: string | null = null;
+  try {
+    const siteUrl = resolveSiteUrl();
+    confirmUrl = `${siteUrl}/booking-action?token=${generateActionToken(inserted.id, "confirm")}`;
+    declineUrl = `${siteUrl}/booking-action?token=${generateActionToken(inserted.id, "decline")}`;
+  } catch (err) {
+    console.warn("[reservations] BOOKING_ACTION_SECRET not set — booking-action links skipped:", err);
+  }
+
+  const photographerSend = !PHOTOGRAPHER_WHATSAPP_NUMBER
+    ? Promise.resolve({ success: false, skipped: true })
+    : confirmUrl && declineUrl && TEMPLATE_BOOKING_RECEIVED_PHOTOGRAPHER
+      ? sendWhatsAppTemplate(PHOTOGRAPHER_WHATSAPP_NUMBER, TEMPLATE_BOOKING_RECEIVED_PHOTOGRAPHER, {
+          "1": input.client_name,
+          "2": input.session_type,
+          "3": sessionDateLabel,
+          "4": confirmUrl,
+          "5": declineUrl,
+        })
+      : sendWhatsAppTemplate(PHOTOGRAPHER_WHATSAPP_NUMBER, TEMPLATE_BOOKING_RECEIVED, {
+          "1": input.client_name,
+          "2": input.session_type,
+          "3": sessionDateLabel,
+        });
+
   const confirmations = await Promise.allSettled([
     sendWhatsAppTemplate(input.client_phone, TEMPLATE_BOOKING_RECEIVED, {
       "1": input.client_name,
       "2": input.session_type,
       "3": sessionDateLabel,
     }),
-    PHOTOGRAPHER_WHATSAPP_NUMBER
-      ? sendWhatsAppTemplate(PHOTOGRAPHER_WHATSAPP_NUMBER, TEMPLATE_BOOKING_RECEIVED, {
-          "1": input.client_name,
-          "2": input.session_type,
-          "3": sessionDateLabel,
-        })
-      : Promise.resolve({ success: false, skipped: true }),
+    photographerSend,
   ]);
 
   confirmations.forEach((result, i) => {

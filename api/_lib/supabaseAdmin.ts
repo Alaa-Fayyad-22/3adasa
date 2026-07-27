@@ -38,6 +38,7 @@ export type ReservationRow = {
   client_email: string | null;
   session_date: string;
   session_type: string;
+  session_location: string;
   notes: string | null;
   status: "pending" | "confirmed" | "cancelled";
   client_reminded_at: string | null;
