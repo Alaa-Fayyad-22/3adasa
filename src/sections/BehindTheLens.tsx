@@ -1,211 +1,73 @@
-import { useEffect, useRef, useState } from "react";
-import { gsap, ScrollTrigger } from "../lib/gsapSetup";
-import Lightbox from "../components/Lightbox";
-import { behindTheLensPhotos } from "../data/photos";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import BehindTheLensStatic from "./BehindTheLensStatic";
 
-const leftColumn = behindTheLensPhotos.filter((_, i) => i % 2 === 0);
-const rightColumn = behindTheLensPhotos.filter((_, i) => i % 2 === 1);
-
-const ROTATIONS = [-3, 2, -2, 3];
+// The Three.js scene is a genuinely heavy chunk (three + PMREMGenerator +
+// RoomEnvironment) — code-split via React.lazy so it's never part of the
+// initial bundle (verified via `npm run build`'s chunk breakdown), and only
+// requested once this section is actually approaching the viewport, not on
+// page load. See the IntersectionObserver below.
+const BehindTheLensScene = lazy(() => import("./BehindTheLensScene"));
 
 export default function BehindTheLens() {
   const sectionRef = useRef<HTMLElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const leftColRef = useRef<HTMLDivElement>(null);
-  const rightColRef = useRef<HTMLDivElement>(null);
-  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [shouldMountScene, setShouldMountScene] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
-    // The pin+parallax trick needs scroll distance and screen real estate
-    // that small viewports don't have — and pinning is exactly what caused
-    // the section to desync from its real scroll position on mobile (stale
-    // trigger bounds from layout that shifts as images above load in).
-    // matchMedia keeps the effect entirely out of the DOM below md, so
-    // mobile just gets the plain stacked layout with nothing to desync.
-    const mm = gsap.matchMedia();
-
-    mm.add("(min-width: 768px)", () => {
-      ScrollTrigger.create({
-        trigger: sectionRef.current,
-        start: "top top",
-        end: "bottom bottom",
-        pin: contentRef.current,
-        pinSpacing: false,
-      });
-
-      // Single ScrollTrigger (via one timeline) drives both columns so
-      // motion stays in lockstep and scrub-smoothed instead of jerky.
-      const parallaxTl = gsap.timeline({
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top bottom",
-          end: "bottom top",
-          scrub: 1,
-        },
-      });
-
-      parallaxTl
-        .fromTo(
-          leftColRef.current,
-          { y: -120 },
-          { y: 120, ease: "none" },
-          0
-        )
-        .fromTo(
-          rightColRef.current,
-          { y: 80 },
-          { y: -160, ease: "none" },
-          0
-        );
-    });
-
-    return () => mm.revert();
+    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReducedMotion(mql.matches);
+    const onChange = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
+    mql.addEventListener("change", onChange);
+    return () => mql.removeEventListener("change", onChange);
   }, []);
+
+  useEffect(() => {
+    // Reduced-motion users never trigger the observer at all — the 3D
+    // chunk is never requested for them, not just skipped after loading.
+    if (reducedMotion || !sectionRef.current) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShouldMountScene(true);
+          observer.disconnect();
+        }
+      },
+      // Generous margin so the chunk has time to fetch/parse before the
+      // section is actually on screen, avoiding a visible pop-in.
+      { rootMargin: "600px 0px 600px 0px" }
+    );
+    observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, [reducedMotion]);
 
   return (
     <section
       ref={sectionRef}
-      className="relative bg-bg md:min-h-[300vh]"
+      className="relative flex min-h-[170vh] flex-col items-center gap-16 bg-bg px-6 py-24 md:py-32"
     >
-      {/* Desktop/tablet: pinned parallax layout */}
-      <div
-        ref={contentRef}
-        className="relative hidden h-screen w-full items-center justify-center overflow-hidden pt-24 md:flex md:pt-32"
-      >
-        {/* Layer 2: parallax image columns — anchored to the outer thirds,
-            behind the text, purely vertical (translateY) motion. */}
-        <div className="pointer-events-none absolute inset-0 z-10">
-          <div
-            ref={leftColRef}
-            className="will-change-transform absolute left-2 top-1/2 flex w-[20vw] min-w-[110px] max-w-[300px] -translate-y-1/2 flex-col items-start gap-6 sm:left-4 md:left-10 lg:left-16"
-          >
-            {leftColumn.map((photo, i) => {
-              const globalIndex = behindTheLensPhotos.indexOf(photo);
-              return (
-                <button
-                  key={photo.id}
-                  onClick={() => setLightboxIndex(globalIndex)}
-                  style={{ rotate: `${ROTATIONS[i % ROTATIONS.length]}deg` }}
-                  className="pointer-events-auto aspect-square w-full overflow-hidden rounded-2xl border border-stroke bg-surface shadow-xl transition-transform hover:scale-105"
-                >
-                  <img
-                    src={photo.src}
-                    alt={photo.title}
-                    loading="lazy"
-                    onLoad={() => ScrollTrigger.refresh()}
-                    className="h-full w-full object-cover"
-                  />
-                </button>
-              );
-            })}
-          </div>
-
-          <div
-            ref={rightColRef}
-            className="will-change-transform absolute right-2 top-1/2 flex w-[20vw] min-w-[110px] max-w-[300px] -translate-y-1/2 flex-col items-end gap-6 sm:right-4 md:right-10 lg:right-16"
-          >
-            {rightColumn.map((photo, i) => {
-              const globalIndex = behindTheLensPhotos.indexOf(photo);
-              return (
-                <button
-                  key={photo.id}
-                  onClick={() => setLightboxIndex(globalIndex)}
-                  style={{ rotate: `${ROTATIONS[(i + 1) % ROTATIONS.length]}deg` }}
-                  className="pointer-events-auto aspect-square w-full overflow-hidden rounded-2xl border border-stroke bg-surface shadow-xl transition-transform hover:scale-105"
-                >
-                  <img
-                    src={photo.src}
-                    alt={photo.title}
-                    loading="lazy"
-                    onLoad={() => ScrollTrigger.refresh()}
-                    className="h-full w-full object-cover"
-                  />
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Layer 1: pinned center text — always on top, width-capped so
-            image columns (outer thirds) never enter its horizontal bounds. */}
-        <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center px-6">
-          <div className="mx-auto flex max-w-[clamp(16rem,42vw,32rem)] flex-col items-center gap-6 rounded-3xl bg-bg/70 px-8 py-10 text-center backdrop-blur-md sm:px-10 sm:py-12">
-            <span className="text-xs uppercase tracking-[0.3em] text-muted">
-              Behind the Lens
-            </span>
-            <h2 className="font-display text-4xl text-text-primary md:text-6xl">
-              More <span className="italic">frames</span>
-            </h2>
-            <p className="max-w-sm text-sm text-muted md:text-base">
-              Stills from the road, the studio, and the space between shots.
-            </p>
-            <a
-              href="https://www.instagram.com/3adasa.lb/"
-              target="_blank"
-              rel="noreferrer"
-              className="pointer-events-auto group relative mt-2 rounded-full text-sm font-medium transition-transform hover:scale-105"
-            >
-              <span className="accent-gradient absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-              <span className="relative flex items-center justify-center rounded-full border-2 border-stroke bg-bg px-7 py-3.5 text-text-primary transition-colors duration-300 group-hover:border-transparent">
-                Follow on Instagram
-              </span>
-            </a>
-          </div>
-        </div>
+      {/* Static text, plain document flow, well above the illustration —
+          never overlaps a moving part at any scroll position. */}
+      <div className="flex max-w-md flex-col items-center gap-4 text-center">
+        <span className="text-xs uppercase tracking-[0.3em] text-muted">
+          Behind the lens
+        </span>
+        <p className="font-display text-2xl italic text-text-primary md:text-3xl">
+          Every frame starts with the gear that makes it possible.
+        </p>
       </div>
 
-      {/* Mobile: simple static stacked layout — no pin, no parallax, no
-          scroll-driven positioning to desync. */}
-      <div className="flex flex-col items-center gap-10 px-6 py-16 md:hidden">
-        <div className="flex flex-col items-center gap-6 text-center">
-          <span className="text-xs uppercase tracking-[0.3em] text-muted">
-            Behind the Lens
-          </span>
-          <h2 className="font-display text-4xl text-text-primary">
-            More <span className="italic">frames</span>
-          </h2>
-          <p className="max-w-sm text-sm text-muted">
-            Stills from the road, the studio, and the space between shots.
-          </p>
-          <a
-            href="https://www.instagram.com/3adasa.lb/"
-            target="_blank"
-            rel="noreferrer"
-            className="group relative rounded-full text-sm font-medium transition-transform hover:scale-105"
-          >
-            <span className="accent-gradient absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-            <span className="relative flex items-center justify-center rounded-full border-2 border-stroke bg-bg px-7 py-3.5 text-text-primary transition-colors duration-300 group-hover:border-transparent">
-              Follow on Instagram
-            </span>
-          </a>
-        </div>
-
-        <div className="grid w-full grid-cols-2 gap-4">
-          {behindTheLensPhotos.map((photo, i) => (
-            <button
-              key={photo.id}
-              onClick={() => setLightboxIndex(i)}
-              className="aspect-square overflow-hidden rounded-2xl border border-stroke bg-surface transition-transform active:scale-95"
-            >
-              <img
-                src={photo.src}
-                alt={photo.title}
-                loading="lazy"
-                className="h-full w-full object-cover"
-              />
-            </button>
-          ))}
-        </div>
+      <div className="flex w-full flex-1 items-center justify-center">
+        {reducedMotion ? (
+          <BehindTheLensStatic />
+        ) : shouldMountScene ? (
+          <Suspense fallback={<BehindTheLensStatic />}>
+            <BehindTheLensScene sectionRef={sectionRef} />
+          </Suspense>
+        ) : (
+          <BehindTheLensStatic />
+        )}
       </div>
-
-      {lightboxIndex !== null && (
-        <Lightbox
-          photos={behindTheLensPhotos}
-          index={lightboxIndex}
-          onClose={() => setLightboxIndex(null)}
-          onNavigate={setLightboxIndex}
-        />
-      )}
     </section>
   );
 }
