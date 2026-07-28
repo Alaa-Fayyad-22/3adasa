@@ -25,6 +25,18 @@ function buildMapsUrl(lat: number, lng: number): string {
   return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
 }
 
+// Click/drag must never leave `address` empty waiting on reverse geocoding
+// (an external, sometimes-failing network call — ZERO_RESULTS for many
+// points, or REQUEST_DENIED if the Geocoding API isn't enabled) — the form's
+// Zod schema requires a non-empty address, so an unresolved geocode would
+// silently block submission even though a real location was picked. This
+// coordinate string is always valid and gets upgraded to a real address by
+// reverseGeocode() if/when that succeeds, same as search already provides
+// synchronously.
+function fallbackAddress(lat: number, lng: number): string {
+  return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+}
+
 let scriptPromise: Promise<void> | null = null;
 
 // Loads the base Maps JS API script once, with the exact libraries this
@@ -139,7 +151,13 @@ export default function LocationPicker({ value, onChange }: LocationPickerProps)
               if (!pos) return;
               const lat = pos.lat();
               const lng = pos.lng();
-              onChangeRef.current({ ...valueRef.current, lat, lng, mapsUrl: buildMapsUrl(lat, lng) });
+              onChangeRef.current({
+                ...valueRef.current,
+                address: fallbackAddress(lat, lng),
+                lat,
+                lng,
+                mapsUrl: buildMapsUrl(lat, lng),
+              });
               reverseGeocode(lat, lng);
             });
             markerRef.current = marker;
@@ -155,7 +173,13 @@ export default function LocationPicker({ value, onChange }: LocationPickerProps)
           const lat = e.latLng.lat();
           const lng = e.latLng.lng();
           placeMarker({ lat, lng });
-          onChangeRef.current({ ...valueRef.current, lat, lng, mapsUrl: buildMapsUrl(lat, lng) });
+          onChangeRef.current({
+            ...valueRef.current,
+            address: fallbackAddress(lat, lng),
+            lat,
+            lng,
+            mapsUrl: buildMapsUrl(lat, lng),
+          });
           reverseGeocode(lat, lng);
         });
 
