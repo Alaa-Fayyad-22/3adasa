@@ -1,72 +1,90 @@
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
-import BehindTheLensStatic from "./BehindTheLensStatic";
+import { motion } from "framer-motion";
 
-// The Three.js scene is a genuinely heavy chunk (three + PMREMGenerator +
-// RoomEnvironment) — code-split via React.lazy so it's never part of the
-// initial bundle (verified via `npm run build`'s chunk breakdown), and only
-// requested once this section is actually approaching the viewport, not on
-// page load. See the IntersectionObserver below.
-const BehindTheLensScene = lazy(() => import("./BehindTheLensScene"));
+type Step = {
+  number: string;
+  title: string;
+  description: string;
+};
+
+const STEPS: Step[] = [
+  {
+    number: "01",
+    title: "Inquiry & booking",
+    description: "Reach out, pick a date, and the session details get confirmed.",
+  },
+  {
+    number: "02",
+    title: "Session day",
+    description: "The shoot itself, wherever it's happening.",
+  },
+  {
+    number: "03",
+    title: "Editing",
+    description: "Photos are selected and edited, usually within a few days.",
+  },
+  {
+    number: "04",
+    title: "Delivery",
+    description: "Final photos sent straight over WhatsApp.",
+  },
+];
 
 export default function BehindTheLens() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const [shouldMountScene, setShouldMountScene] = useState(false);
-  const [reducedMotion, setReducedMotion] = useState(false);
-
-  useEffect(() => {
-    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReducedMotion(mql.matches);
-    const onChange = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
-    mql.addEventListener("change", onChange);
-    return () => mql.removeEventListener("change", onChange);
-  }, []);
-
-  useEffect(() => {
-    // Reduced-motion users never trigger the observer at all — the 3D
-    // chunk is never requested for them, not just skipped after loading.
-    if (reducedMotion || !sectionRef.current) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setShouldMountScene(true);
-          observer.disconnect();
-        }
-      },
-      // Generous margin so the chunk has time to fetch/parse before the
-      // section is actually on screen, avoiding a visible pop-in.
-      { rootMargin: "600px 0px 600px 0px" }
-    );
-    observer.observe(sectionRef.current);
-    return () => observer.disconnect();
-  }, [reducedMotion]);
-
   return (
-    <section
-      ref={sectionRef}
-      className="relative flex min-h-[170vh] flex-col items-center gap-16 bg-bg px-6 py-24 md:py-32"
-    >
-      {/* Static text, plain document flow, well above the illustration —
-          never overlaps a moving part at any scroll position. */}
-      <div className="flex max-w-md flex-col items-center gap-4 text-center">
-        <span className="text-xs uppercase tracking-[0.3em] text-muted">
-          Behind the lens
-        </span>
-        <p className="font-display text-2xl italic text-text-primary md:text-3xl">
-          Every frame starts with the gear that makes it possible.
-        </p>
-      </div>
+    <section className="bg-bg py-16 md:py-24">
+      <div className="mx-auto max-w-[1200px] px-6 md:px-10 lg:px-16">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 1, ease: [0.25, 0.1, 0.25, 1] }}
+          className="flex flex-col items-center gap-4 text-center"
+        >
+          <span className="text-xs uppercase tracking-[0.3em] text-muted">
+            Behind the Lens
+          </span>
+          <h2 className="font-display text-4xl text-text-primary md:text-5xl">
+            How it <span className="italic">works</span>
+          </h2>
+          <p className="max-w-md text-sm text-muted md:text-base">
+            From first message to final photos — here's what to expect.
+          </p>
+        </motion.div>
 
-      <div className="flex w-full flex-1 items-center justify-center">
-        {reducedMotion ? (
-          <BehindTheLensStatic />
-        ) : shouldMountScene ? (
-          <Suspense fallback={<BehindTheLensStatic />}>
-            <BehindTheLensScene sectionRef={sectionRef} />
-          </Suspense>
-        ) : (
-          <BehindTheLensStatic />
-        )}
+        <div className="relative mt-16 flex flex-col gap-10 md:mt-20 md:flex-row md:gap-8">
+          {/* Connecting rail — vertical through the number column on mobile,
+              horizontal through the number row on desktop. Animates in once
+              per mount, independent of the per-step stagger below. */}
+          <motion.span
+            aria-hidden
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.9, ease: [0.25, 0.1, 0.25, 1] }}
+            className="absolute left-[23px] top-1 bottom-1 w-px bg-stroke md:left-0 md:right-0 md:top-[27px] md:bottom-auto md:h-px md:w-auto"
+          />
+
+          {STEPS.map((step, i) => (
+            <motion.div
+              key={step.number}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.7, delay: i * 0.1, ease: [0.25, 0.1, 0.25, 1] }}
+              className="relative flex gap-5 md:flex-1 md:flex-col md:gap-4"
+            >
+              <span className="w-12 shrink-0 text-center font-display text-3xl italic text-text-primary md:w-auto md:text-left md:text-4xl">
+                {step.number}
+              </span>
+              <div className="pt-1 md:pt-0">
+                <h3 className="mb-1.5 text-base font-semibold text-text-primary">
+                  {step.title}
+                </h3>
+                <p className="max-w-[28ch] text-sm text-muted">{step.description}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </section>
   );
