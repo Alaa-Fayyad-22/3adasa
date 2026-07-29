@@ -29,11 +29,11 @@ export default function Navbar() {
     link.kind === "route" && location.pathname === link.path;
 
   return (
-    <div className="fixed left-0 right-0 top-0 z-50 flex justify-center px-4 pt-4 md:pt-6">
+    <div className="fixed left-0 right-0 top-0 z-50 flex pointer-events-none justify-center px-4 pt-4 md:pt-6">
       <div
-        className={`inline-flex items-center rounded-full border border-white/10 bg-surface px-2 py-2 backdrop-blur-md transition-shadow duration-300 ${
-          scrolled ? "shadow-md shadow-black/10" : ""
-        }`}
+        className={`pointer-events-auto inline-flex items-center rounded-full border z-50 border-white/10 bg-surface px-2 py-2 backdrop-blur-md transition-shadow duration-300 ${
+  scrolled ? "shadow-md shadow-black/10" : ""
+}`}
       >
         <button
           onClick={() => goToSection("home")}
