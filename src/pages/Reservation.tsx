@@ -64,6 +64,23 @@ export default function Reservation() {
     return now.toISOString().slice(0, 16);
   }, []);
 
+  // Mirrors which fields reservationSchema actually requires (client_email
+  // and notes are optional there) — this is deliberately a looser "has
+  // something been entered" check, not full validation. It only gates the
+  // submit button so an obviously-incomplete form can't be submitted to see
+  // nothing happen; real validation still runs in handleSubmit via
+  // reservationSchema.safeParse.
+  const isFormComplete = useMemo(
+    () =>
+      form.client_name.trim().length > 0 &&
+      form.client_phone.trim().length > 0 &&
+      form.session_type !== "" &&
+      form.session_date_local.trim().length > 0 &&
+      form.session_location.address.trim().length > 0 &&
+      isLocationSelected(form.session_location),
+    [form]
+  );
+
   function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
@@ -383,14 +400,19 @@ export default function Reservation() {
 
             <button
               type="submit"
-              disabled={status === "submitting"}
-              className="group relative mt-2 rounded-full text-sm font-medium transition-transform hover:scale-105 disabled:pointer-events-none disabled:opacity-60"
+              disabled={status === "submitting" || !isFormComplete}
+              className="group relative mt-2 rounded-full text-sm font-medium transition-transform hover:scale-105 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
             >
               <span className="accent-gradient absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
               <span className="relative flex items-center justify-center rounded-full bg-text-primary px-7 py-3.5 text-bg transition-colors duration-300 group-hover:bg-bg group-hover:text-text-primary">
                 {status === "submitting" ? "Sending…" : "Request booking"}
               </span>
             </button>
+            {!isFormComplete && (
+              <p className="-mt-3 text-center text-xs text-muted">
+                Fill in all required fields to continue.
+              </p>
+            )}
           </form>
         )}
       </main>

@@ -25,7 +25,7 @@ const STEPS: Step[] = [
   {
     number: "04",
     title: "Delivery",
-    description: "Final photos sent straight over WhatsApp.",
+    description: "Final photos sent straight over to you.",
   },
 ];
 
