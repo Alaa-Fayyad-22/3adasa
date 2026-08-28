@@ -15,6 +15,9 @@ dist-ssr
 # Auto-generated from /public/photos by scripts/generate-photo-data.ts
 src/data/generatedPhotos.ts
 
+# Local sync state for scripts/sync-instagram-photos.ts (tracks imported media ids)
+.instagram-sync-state.json
+
 # Env
 .env
 .env.*
