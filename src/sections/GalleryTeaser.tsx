@@ -5,10 +5,10 @@ import GalleryCard from "../components/GalleryCard";
 import Lightbox from "../components/Lightbox";
 import { galleryPhotos } from "../data/photos";
 
-const TEASER_PHOTOS = galleryPhotos.slice(0, 4);
-
 export default function GalleryTeaser() {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  const teaserPhotos = galleryPhotos.slice(0, 4);
 
   return (
     <section className="bg-bg py-12 md:py-16">
@@ -44,21 +44,27 @@ export default function GalleryTeaser() {
           </Link>
         </motion.div>
 
-        <div className="columns-2 gap-x-5 md:columns-3 md:gap-x-6 lg:columns-4">
-          {TEASER_PHOTOS.map((photo, i) => (
-            <GalleryCard
-              key={photo.id}
-              photo={photo}
-              delay={(i % 4) * 0.08}
-              onClick={() => setLightboxIndex(i)}
-            />
-          ))}
-        </div>
+        {teaserPhotos.length === 0 ? (
+          <p className="text-sm text-muted">
+            The gallery is being updated — check back shortly.
+          </p>
+        ) : (
+          <div className="columns-2 gap-x-5 md:columns-3 md:gap-x-6 lg:columns-4">
+            {teaserPhotos.map((photo, i) => (
+              <GalleryCard
+                key={photo.id}
+                photo={photo}
+                delay={(i % 4) * 0.08}
+                onClick={() => setLightboxIndex(i)}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {lightboxIndex !== null && (
         <Lightbox
-          photos={TEASER_PHOTOS}
+          photos={teaserPhotos}
           index={lightboxIndex}
           onClose={() => setLightboxIndex(null)}
           onNavigate={setLightboxIndex}

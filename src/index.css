@@ -103,6 +103,17 @@ body {
   }
 }
 
+/* Staggered pulse for the "scroll to reveal" chevron prompt. */
+@keyframes chevron-pulse {
+  0%,
+  100% {
+    opacity: 0.18;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
 .animate-scroll-down {
   animation: scroll-down 1.5s ease-in-out infinite;
 }
@@ -117,6 +128,10 @@ body {
 
 .animate-ken-burns {
   animation: ken-burns 8s ease-out infinite alternate;
+}
+
+.animate-chevron {
+  animation: chevron-pulse 1.5s ease-in-out infinite;
 }
 
 .blur-in {

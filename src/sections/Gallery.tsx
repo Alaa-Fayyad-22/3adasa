@@ -56,24 +56,29 @@ export default function Gallery() {
                 </button>
               ))}
             </div>
-
-            <button className="group relative hidden rounded-full text-sm md:inline-flex">
-              <span className="accent-gradient absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-              
-            </button>
           </div>
         </motion.div>
 
-        <div className="columns-2 gap-x-5 md:columns-3 md:gap-x-6 lg:columns-4">
-          {filtered.map((photo, i) => (
-            <GalleryCard
-              key={photo.id}
-              photo={photo}
-              delay={(i % 4) * 0.08}
-              onClick={() => setLightboxIndex(i)}
-            />
-          ))}
-        </div>
+        {galleryPhotos.length === 0 ? (
+          <p className="text-sm text-muted">
+            The gallery is being updated — check back shortly.
+          </p>
+        ) : filtered.length === 0 ? (
+          <p className="text-sm text-muted">
+            No photos in “{activeCategory}” yet.
+          </p>
+        ) : (
+          <div className="columns-2 gap-x-5 md:columns-3 md:gap-x-6 lg:columns-4">
+            {filtered.map((photo, i) => (
+              <GalleryCard
+                key={photo.id}
+                photo={photo}
+                delay={(i % 4) * 0.08}
+                onClick={() => setLightboxIndex(i)}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {lightboxIndex !== null && (

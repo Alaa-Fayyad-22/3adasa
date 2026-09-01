@@ -1,4 +1,5 @@
-import { behindTheLensPhotos, galleryPhotos, heroImages } from "./photos";
+// Blog cover images are fixed illustrations bundled at public/fallback/**.
+// The blog is editorial content, separate from the photo gallery.
 
 export type Post = {
   slug: string;
@@ -18,7 +19,7 @@ export const posts: Post[] = [
     date: "2026-05-12",
     excerpt:
       "A few notes on timing, gear, and patience from a portrait shoot that almost got rained out, plus what golden hour really takes to nail on location, every time.",
-    coverImage: heroImages[1].src,
+    coverImage: "/fallback/ridge-line.jpeg",
     coverAlt:
       "Aerial view of Deir el Qamar's hillside village with orange rooftops under a cloudy sky",
     content:
@@ -30,7 +31,7 @@ export const posts: Post[] = [
     date: "2026-04-02",
     excerpt:
       "What a full day on an editorial set actually looks like, from call time to the last frame, including wardrobe changes, light resets, and quiet moments.",
-    coverImage: galleryPhotos[3].src,
+    coverImage: "/fallback/graduation-day.jpeg",
     coverAlt: "A graduate in a white gown and cap smiling on stone steps",
     coverFocus: "top",
     content:
@@ -42,7 +43,7 @@ export const posts: Post[] = [
     date: "2026-02-18",
     excerpt:
       "On unscripted moments, quiet observation, and why street photography keeps every other genre honest, even after years of shooting portraits and events.",
-    coverImage: behindTheLensPhotos[0].src,
+    coverImage: "/fallback/set-notes-wedding.jpeg",
     coverAlt:
       "A bride and groom smiling together on a forest path holding a red rose bouquet",
     coverFocus: "top",

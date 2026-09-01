@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-// Matches the Photo category union in src/data/photos.ts. Kept as its own
+// Overlaps the PhotoCategory union in src/data/photos.ts. Kept as its own
 // constant (not imported from `categories` there) because that export is
 // scoped to "categories with existing gallery photos" — a session type is a
 // broader, independent concept; someone can book a Street session before any

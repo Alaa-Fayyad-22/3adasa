@@ -12,8 +12,8 @@ dist
 dist-ssr
 *.local
 
-# Auto-generated from /public/photos by scripts/generate-photo-data.ts
-src/data/generatedPhotos.ts
+# Auto-generated from public/photos/gallery/ by scripts/generate-gallery-photos.ts
+src/data/galleryPhotos.ts
 
 # Env
 .env

@@ -1,11 +1,35 @@
+export type PhotoCategory = "Portrait" | "Landscape" | "Events" | "Street";
+
 export type Photo = {
   id: string;
   src: string;
+  /** Displayed title — derived from the file name (e.g. "01-golden-trail" → "Golden Trail"). */
   title: string;
-  categories: ("Portrait" | "Landscape" | "Events" | "Street")[];
+  /** Subject categories, from the containing folder under public/photos/gallery/. */
+  categories: PhotoCategory[];
+  /** Intrinsic pixel size — 0 if it couldn't be read (e.g. .webp). */
+  width: number;
+  height: number;
 };
 
-export { heroImages, galleryPhotos, behindTheLensPhotos } from "./generatedPhotos";
+// Local photo pool — generated from public/photos/gallery/ by
+// scripts/generate-gallery-photos.ts (runs on `predev` / `build`).
+export { galleryPhotos } from "./galleryPhotos";
+import { galleryPhotos } from "./galleryPhotos";
+
+/**
+ * Portrait-only subset for the hero's "Dynamic Diptych" — it needs true ~2:3
+ * verticals and must not stretch/crop landscape or square shots to fit.
+ */
+export const heroPhotos: Photo[] = galleryPhotos.filter(
+  (p) => p.width > 0 && p.height / p.width >= 1.15
+);
+
+/** Gallery filter tabs: "All" plus every category that actually has photos. */
+export const categories = [
+  "All",
+  ...Array.from(new Set(galleryPhotos.flatMap((p) => p.categories))).sort(),
+] as ("All" | PhotoCategory)[];
 
 export const photographer = {
   name: "Jad Daou",
@@ -17,15 +41,10 @@ export const photographer = {
 
 export const aboutPortrait = "/about-image_logo.jpeg";
 
-export const contactBackground =
-  "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?w=2000&q=80&auto=format&fit=crop";
-
 export const stats = [
   { value: "2+", label: "Years Shooting" },
   { value: "20+", label: "Sessions Completed" },
   { value: "400+", label: "Images Captured" },
 ];
 
-export const specialties = ["Portrait",  "Landscape", "Events"];
-
-export const categories = ["All", "Portrait", "Landscape", "Events"] as const;
+export const specialties = ["Portrait", "Landscape", "Events"];

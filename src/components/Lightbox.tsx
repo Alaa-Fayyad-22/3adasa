@@ -96,9 +96,11 @@ export default function Lightbox({ photos, index, onClose, onNavigate }: Lightbo
             loading="lazy"
             className="max-h-[75vh] max-w-full rounded-lg object-contain shadow-2xl"
           />
-          <p className="font-display text-xl italic text-text-primary">
-            {photo.title}
-          </p>
+          <div className="flex flex-col items-center gap-1.5 text-center">
+            <p className="font-display text-xl italic text-text-primary">
+              {photo.title}
+            </p>
+          </div>
         </motion.div>
       </motion.div>
     </AnimatePresence>

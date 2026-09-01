@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "predev": "npm run generate-photo-data",
+    "predev": "npm run generate-gallery-photos",
+    "generate-gallery-photos": "tsx scripts/generate-gallery-photos.ts",
     "generate-seo": "tsx scripts/generate-seo-files.ts",
-    "generate-photo-data": "tsx scripts/generate-photo-data.ts",
-    "build": "npm run generate-photo-data && npm run generate-seo && tsc -b && vite build",
+    "build": "npm run generate-gallery-photos && npm run generate-seo && tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview"
   },
@@ -27,6 +27,7 @@
     "react-icons": "^5.7.0",
     "react-router-dom": "^7.18.1",
     "tailwindcss-animate": "^1.0.7",
+    "three": "^0.185.1",
     "zod": "^4.4.3"
   },
   "devDependencies": {
@@ -34,6 +35,7 @@
     "@types/node": "^24.13.2",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
+    "@types/three": "^0.185.1",
     "@vitejs/plugin-react": "^6.0.3",
     "autoprefixer": "^10.5.4",
     "oxlint": "^1.71.0",
