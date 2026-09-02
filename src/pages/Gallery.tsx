@@ -10,7 +10,7 @@ export default function Gallery() {
   return (
     <>
       <Seo
-        title="Gallery — Portrait, Street & Landscape Work"
+        title="Gallery — Portrait, Street & Landscape Work in Beirut"
         description="Browse the photography portfolio of Jad Daou: portrait sessions, street photography, landscape imagery, and event coverage from Beirut and across Lebanon."
       />
       <JsonLd

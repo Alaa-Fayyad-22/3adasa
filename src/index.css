@@ -141,3 +141,262 @@ body {
 .tabular-nums {
   font-variant-numeric: tabular-nums;
 }
+
+/* ------------------------------------------------------------------ *
+ * 404 — "empty frames"
+ * Frame layout, drift animation and entrance sequence. Values ported
+ * verbatim from the approved reference; the reference's hardcoded warm
+ * off-white (rgba(217,214,205,…)) and #f2efe9 are expressed here through
+ * the site's --text token instead (0 0% 96%).
+ * ------------------------------------------------------------------ */
+
+.nf-empty-frame {
+  position: relative;
+  border: 1px solid hsl(var(--text) / 0.35);
+  border-radius: 2px;
+  background:
+    linear-gradient(hsl(var(--text) / 0.045), hsl(var(--text) / 0.045)),
+    repeating-linear-gradient(
+      135deg,
+      transparent,
+      transparent 7px,
+      hsl(var(--text) / 0.05) 7px,
+      hsl(var(--text) / 0.05) 8px
+    );
+}
+.nf-empty-frame::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border: 1px solid hsl(var(--text) / 0.12);
+}
+
+.nf-field-wrap {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  /* clip only the horizontal overrun from the left/right entrance slides
+     (translateX ±var(--nf-enter-x)) so they never add a page scrollbar;
+     vertical is left visible so the "0" can drop in from above. */
+  overflow-x: clip;
+}
+.nf-field {
+  position: relative;
+  width: 820px;
+  height: 340px;
+  margin-bottom: 8px;
+  /* Frame geometry + entrance-slide travel. Desktop values here; the
+     narrow-screen block below re-tunes every one of these (real
+     recomputed spacing, not a scaled-down copy of the desktop layout). */
+  --nf-digit-w: 130px;
+  --nf-digit-h: 190px;
+  --nf-digit-fs: 80px;
+  --nf-enter-x: 260px;
+  --nf-enter-y: 220px;
+}
+
+.nf-bg-frame {
+  position: absolute;
+  width: 70px;
+  height: 100px;
+  opacity: 0.5;
+}
+.nf-bg-1 { top: 0%; left: 4%; }
+.nf-bg-2 { top: 55%; left: 0%; }
+.nf-bg-3 { top: 10%; right: 2%; }
+.nf-bg-4 { top: 60%; right: 6%; }
+
+.nf-digit-frame {
+  position: absolute;
+  display: flex;
+  width: var(--nf-digit-w);
+  height: var(--nf-digit-h);
+  align-items: center;
+  justify-content: center;
+  font-family: "Instrument Serif", serif;
+  font-style: italic;
+  font-size: var(--nf-digit-fs);
+  color: hsl(var(--text));
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.45);
+}
+.nf-digit-1 { top: 6%; left: 26%; }
+.nf-digit-2 { top: 3%; left: 42%; }
+.nf-digit-3 { top: 6%; left: 58%; }
+
+/* Digit drift — each frame wanders a loose loop around its own resting
+   point; dense (~9%) evenly-spaced waypoints + linear timing so there is
+   no visible pause/deceleration anywhere in the loop. */
+@keyframes nf-dDrift1 {
+  /* left "4" — resting rotation -2deg */
+  0% { transform: translate(0, 0) rotate(-2deg); }
+  9% { transform: translate(2.5px, -3px) rotate(-1.7deg); }
+  18% { transform: translate(5px, -6px) rotate(-1.1deg); }
+  27% { transform: translate(6.5px, -9px) rotate(-1.8deg); }
+  36% { transform: translate(5.5px, -10.5px) rotate(-2.6deg); }
+  45% { transform: translate(2px, -9px) rotate(-3.1deg); }
+  54% { transform: translate(-2px, -6px) rotate(-3.2deg); }
+  63% { transform: translate(-5px, -2px) rotate(-2.6deg); }
+  72% { transform: translate(-5.5px, 2.5px) rotate(-1.8deg); }
+  81% { transform: translate(-3.5px, 5px) rotate(-1.4deg); }
+  91% { transform: translate(-1px, 3px) rotate(-1.7deg); }
+  100% { transform: translate(0, 0) rotate(-2deg); }
+}
+@keyframes nf-dDrift2 {
+  /* "0" — resting rotation 1deg */
+  0% { transform: translate(0, 0) rotate(1deg); }
+  9% { transform: translate(-2px, 2.5px) rotate(0.6deg); }
+  18% { transform: translate(-4.5px, 5px) rotate(0.2deg); }
+  27% { transform: translate(-7px, 3.5px) rotate(-0.4deg); }
+  36% { transform: translate(-9px, 0.5px) rotate(-0.9deg); }
+  45% { transform: translate(-7.5px, -3px) rotate(-0.2deg); }
+  54% { transform: translate(-5px, -6px) rotate(1deg); }
+  63% { transform: translate(-2px, -7.5px) rotate(1.9deg); }
+  72% { transform: translate(1.5px, -5.5px) rotate(2.2deg); }
+  81% { transform: translate(4px, -2px) rotate(1.9deg); }
+  91% { transform: translate(2.5px, 1px) rotate(1.3deg); }
+  100% { transform: translate(0, 0) rotate(1deg); }
+}
+@keyframes nf-dDrift3 {
+  /* right "4" — resting rotation -1deg */
+  0% { transform: translate(0, 0) rotate(-1deg); }
+  9% { transform: translate(2px, 2px) rotate(-0.6deg); }
+  18% { transform: translate(4.5px, 4px) rotate(0deg); }
+  27% { transform: translate(6px, 6.5px) rotate(0.6deg); }
+  36% { transform: translate(5.5px, 9px) rotate(0.9deg); }
+  45% { transform: translate(3px, 8px) rotate(0.4deg); }
+  54% { transform: translate(0px, 5px) rotate(-0.4deg); }
+  63% { transform: translate(-3px, 1.5px) rotate(-1.4deg); }
+  72% { transform: translate(-5.5px, -2px) rotate(-2.3deg); }
+  81% { transform: translate(-4.5px, -5px) rotate(-1.9deg); }
+  91% { transform: translate(-2px, -3px) rotate(-1.4deg); }
+  100% { transform: translate(0, 0) rotate(-1deg); }
+}
+
+/* Background frame drift — same approach, slower + smaller amplitude so
+   they read as further back; each on independent timing. */
+@keyframes nf-dBgDrift1 {
+  0% { transform: translate(0, 0) rotate(-3deg); }
+  13% { transform: translate(2px, -2.5px) rotate(-3.4deg); }
+  27% { transform: translate(4px, -4.5px) rotate(-4deg); }
+  41% { transform: translate(3px, -6px) rotate(-3.2deg); }
+  55% { transform: translate(0px, -4.5px) rotate(-1.8deg); }
+  68% { transform: translate(-3px, -1px) rotate(-2.4deg); }
+  82% { transform: translate(-4.5px, 2px) rotate(-3.6deg); }
+  100% { transform: translate(0, 0) rotate(-3deg); }
+}
+@keyframes nf-dBgDrift2 {
+  0% { transform: translate(0, 0) rotate(2deg); }
+  15% { transform: translate(-2.5px, 2px) rotate(2.6deg); }
+  30% { transform: translate(-5px, 4px) rotate(3.4deg); }
+  45% { transform: translate(-3.5px, 6px) rotate(2.2deg); }
+  60% { transform: translate(-1px, 6.5px) rotate(0.9deg); }
+  75% { transform: translate(2px, 3.5px) rotate(1.7deg); }
+  88% { transform: translate(3.5px, 1px) rotate(2.8deg); }
+  100% { transform: translate(0, 0) rotate(2deg); }
+}
+@keyframes nf-dBgDrift3 {
+  0% { transform: translate(0, 0) rotate(-2deg); }
+  14% { transform: translate(2px, 2.5px) rotate(-1.4deg); }
+  29% { transform: translate(4px, 5px) rotate(-0.6deg); }
+  43% { transform: translate(2.5px, 4.5px) rotate(-1.6deg); }
+  58% { transform: translate(-1px, 3px) rotate(-3.1deg); }
+  72% { transform: translate(-3.5px, 0px) rotate(-2.5deg); }
+  86% { transform: translate(-4px, -2.5px) rotate(-1.7deg); }
+  100% { transform: translate(0, 0) rotate(-2deg); }
+}
+@keyframes nf-dBgDrift4 {
+  0% { transform: translate(0, 0) rotate(3deg); }
+  12% { transform: translate(-2px, -2px) rotate(2.3deg); }
+  25% { transform: translate(-4.5px, -4px) rotate(1.8deg); }
+  38% { transform: translate(-6px, -1.5px) rotate(2.8deg); }
+  52% { transform: translate(-4.5px, 1.5px) rotate(4.2deg); }
+  66% { transform: translate(-1.5px, 3.5px) rotate(3.6deg); }
+  79% { transform: translate(1.5px, 4px) rotate(2.6deg); }
+  100% { transform: translate(0, 0) rotate(3deg); }
+}
+
+/* Entrance — plays once on mount. Each frame's END rotation matches its
+   own drift keyframe's 0% rotation exactly, so the hand-off to the drift
+   is invisible (no snap). */
+@keyframes nf-enterFromTop {
+  0% { opacity: 0; transform: translate(0, calc(-1 * var(--nf-enter-y))) rotate(0deg); }
+  35% { opacity: 1; }
+  100% { opacity: 1; transform: translate(0, 0) rotate(1deg); }
+}
+@keyframes nf-enterFromLeft {
+  0% { opacity: 0; transform: translate(calc(-1 * var(--nf-enter-x)), 0) rotate(-8deg); }
+  35% { opacity: 1; }
+  100% { opacity: 1; transform: translate(0, 0) rotate(-2deg); }
+}
+@keyframes nf-enterFromRight {
+  0% { opacity: 0; transform: translate(var(--nf-enter-x), 0) rotate(8deg); }
+  35% { opacity: 1; }
+  100% { opacity: 1; transform: translate(0, 0) rotate(-1deg); }
+}
+@keyframes nf-enterFade {
+  from { opacity: 0; }
+  to { opacity: 0.5; }
+}
+
+.nf-entering.nf-digit-1 {
+  animation: nf-enterFromLeft 2.2s cubic-bezier(0.16, 0.6, 0.2, 1) both;
+}
+.nf-entering.nf-digit-2 {
+  animation: nf-enterFromTop 2.2s cubic-bezier(0.16, 0.6, 0.2, 1) both;
+  animation-delay: 0.1s;
+}
+.nf-entering.nf-digit-3 {
+  animation: nf-enterFromRight 2.2s cubic-bezier(0.16, 0.6, 0.2, 1) both;
+  animation-delay: 0.2s;
+}
+.nf-entering.nf-bg-frame-anim {
+  animation: nf-enterFade 1.6s ease both;
+  animation-delay: 0.15s;
+}
+
+/* Narrow widths — the digit frames' spec positions (left 26/42/58%) and
+   130px width only clear each other on a wide (~820px) stage, so below
+   880px the stage geometry is genuinely recomputed rather than scaled:
+   a fluid full-width stage, frames re-spaced to left 3/36/69% with their
+   own narrower width/height/font-size, and shorter entrance-slide travel
+   (--nf-enter-*) so a "4" never starts more than a viewport-width away.
+   No CSS transform is involved, so the wrapper's flow height stays
+   correct on its own. Checked at 320 / 375 / 390px: the resting gaps
+   (~24-35px) exceed the drift's worst-case closing (~15.5px), so the
+   three frames never touch mid-drift. */
+@media (max-width: 880px) {
+  .nf-field {
+    width: 100%;
+    max-width: 560px;
+    height: clamp(240px, 70vw, 300px);
+    --nf-digit-w: clamp(60px, 19.5vw, 116px);
+    --nf-digit-h: clamp(88px, 28.5vw, 170px);
+    --nf-digit-fs: clamp(40px, 12.5vw, 72px);
+    --nf-enter-x: clamp(96px, 34vw, 190px);
+    --nf-enter-y: clamp(90px, 30vw, 165px);
+  }
+  .nf-digit-1 { left: 3%; }
+  .nf-digit-2 { left: 36%; }
+  .nf-digit-3 { left: 69%; }
+}
+
+/* Phones — shed the ambient background frames the way the rest of the
+   site drops decoration at this width. */
+@media (max-width: 640px) {
+  .nf-bg-frame {
+    display: none;
+  }
+}
+
+/* Reduced motion — belt-and-suspenders alongside the JS, which already
+   renders every frame at its resting transform with no "nf-entering"
+   class. The inline resting transform stays applied, so killing the
+   animation here leaves each frame correctly placed and fully visible. */
+@media (prefers-reduced-motion: reduce) {
+  .nf-entering.nf-digit-1,
+  .nf-entering.nf-digit-2,
+  .nf-entering.nf-digit-3,
+  .nf-entering.nf-bg-frame-anim {
+    animation: none !important;
+  }
+}

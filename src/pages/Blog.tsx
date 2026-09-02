@@ -11,7 +11,7 @@ export default function Blog() {
     <>
       <Seo
         title="Blog — Notes from the Field"
-        description="Read notes on photography from Jad Daou: behind-the-scenes stories from portrait sessions, editorial sets, street photography, and landscape shoots today."
+        description="Field notes and behind-the-scenes stories from Jad Daou, a Beirut-based photographer — on chasing light, editorial shoots, and street photography."
       />
       <JsonLd
         data={{

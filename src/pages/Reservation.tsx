@@ -193,7 +193,7 @@ export default function Reservation() {
   return (
     <>
       <Seo
-        title="Book a Photography Session"
+        title="Book a Photography Session in Beirut"
         description="Reserve a portrait, street, landscape, or event photography session with Jad Daou in Beirut. Pick a date, drop a pin, and message on WhatsApp."
       />
       <JsonLd

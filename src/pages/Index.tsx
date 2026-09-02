@@ -44,15 +44,18 @@ export default function Index() {
         data={{
           "@context": "https://schema.org",
           "@type": "Person",
+          "@id": `${absoluteUrl("/")}#person`,
           name: photographer.name,
           jobTitle: photographer.roles[0],
           description: photographer.description,
           image: absoluteUrl(aboutPortrait),
           url: absoluteUrl("/"),
           sameAs: ["https://www.instagram.com/3adasa.lb/"],
+          worksFor: { "@id": `${absoluteUrl("/")}#business` },
           address: {
             "@type": "PostalAddress",
-            addressLocality: photographer.city,
+            addressLocality: "Beirut",
+            addressCountry: "LB",
           },
           areaServed: AREA_SERVED,
         }}
@@ -62,13 +65,56 @@ export default function Index() {
           "@context": "https://schema.org",
           "@type": "ProfessionalService",
           "@id": `${absoluteUrl("/")}#business`,
+          additionalType: "https://www.wikidata.org/wiki/Q33231",
           name: `${photographer.name} Photography`,
-          description: photographer.description,
+          description:
+            "Jad Daou is a Beirut-based photographer working across Lebanon in portrait, street, landscape, and event photography. Sessions are built around real, unscripted moments — light, shadow, and stillness over poses.",
           image: absoluteUrl(aboutPortrait),
           url: absoluteUrl("/"),
           priceRange: "$$",
           sameAs: ["https://www.instagram.com/3adasa.lb/"],
-          founder: { "@type": "Person", name: photographer.name },
+          founder: { "@id": `${absoluteUrl("/")}#person` },
+          knowsAbout: [
+            "Portrait photography",
+            "Street photography",
+            "Landscape photography",
+            "Event photography",
+            "Wedding photography",
+          ],
+          hasOfferCatalog: {
+            "@type": "OfferCatalog",
+            name: "Photography sessions",
+            itemListElement: [
+              {
+                "@type": "Offer",
+                itemOffered: {
+                  "@type": "Service",
+                  name: "Portrait photography session",
+                },
+              },
+              {
+                "@type": "Offer",
+                itemOffered: {
+                  "@type": "Service",
+                  name: "Street photography session",
+                },
+              },
+              {
+                "@type": "Offer",
+                itemOffered: {
+                  "@type": "Service",
+                  name: "Landscape photography session",
+                },
+              },
+              {
+                "@type": "Offer",
+                itemOffered: {
+                  "@type": "Service",
+                  name: "Event photography session",
+                },
+              },
+            ],
+          },
           address: {
             "@type": "PostalAddress",
             addressLocality: "Beirut",

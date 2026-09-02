@@ -5,23 +5,13 @@ export function absoluteUrl(path: string): string {
   return `${SITE_URL}${path.startsWith("/") ? "" : "/"}${path}`;
 }
 
-/** Lebanon-wide coverage for JSON-LD `areaServed` — governorates and the
- * districts within them explicitly named for regional search visibility. */
+/** Areas actually worked, per the site's own copy (Footer.tsx: "Based in
+ * Beirut, shooting across Lebanon — Chouf, Keserwan, Mount Lebanon…").
+ * Kept deliberately short so `areaServed` reflects real coverage rather
+ * than a padded regional keyword list. */
 export const AREA_SERVED = [
   { "@type": "Place", name: "Beirut" },
   { "@type": "Place", name: "Mount Lebanon" },
   { "@type": "Place", name: "Chouf" },
-  { "@type": "Place", name: "Aley" },
-  { "@type": "Place", name: "Baabda" },
   { "@type": "Place", name: "Keserwan" },
-  { "@type": "Place", name: "Byblos (Jbeil)" },
-  { "@type": "Place", name: "Metn" },
-  { "@type": "Place", name: "North Lebanon" },
-  { "@type": "Place", name: "Batroun" },
-  { "@type": "Place", name: "Tripoli" },
-  { "@type": "Place", name: "Zgharta" },
-  { "@type": "Place", name: "Koura" },
-  { "@type": "Place", name: "Bekaa" },
-  { "@type": "Place", name: "South Lebanon" },
-  { "@type": "Place", name: "Nabatieh" },
 ];

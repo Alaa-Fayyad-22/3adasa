@@ -10,20 +10,25 @@ export default function About() {
   return (
     <>
       <Seo
-        title="About Jad Daou — Photographer"
+        title="About Jad Daou — Photographer in Beirut"
         description="Meet Jad Daou, a Beirut-based photographer covering portraits, street scenes, landscape, and events. Read the story and specialties behind the camera here."
       />
       <JsonLd
         data={{
           "@context": "https://schema.org",
           "@type": "Person",
+          "@id": `${absoluteUrl("/")}#person`,
           name: photographer.name,
           jobTitle: photographer.roles[0],
           description: photographer.description,
           image: absoluteUrl(aboutPortrait),
+          url: absoluteUrl("/about"),
+          sameAs: ["https://www.instagram.com/3adasa.lb/"],
+          worksFor: { "@id": `${absoluteUrl("/")}#business` },
           address: {
             "@type": "PostalAddress",
-            addressLocality: photographer.city,
+            addressLocality: "Beirut",
+            addressCountry: "LB",
           },
           areaServed: AREA_SERVED,
         }}
