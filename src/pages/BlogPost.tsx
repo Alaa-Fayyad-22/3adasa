@@ -5,7 +5,7 @@ import Seo from "../components/Seo";
 import JsonLd from "../components/JsonLd";
 import { absoluteUrl } from "../lib/seo";
 import { photographer } from "../data/photos";
-import { posts } from "../data/posts";
+import { posts, formatPostDate } from "../data/posts";
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
@@ -15,11 +15,7 @@ export default function BlogPost() {
     return <Navigate to="/blog" replace />;
   }
 
-  const formattedDate = new Date(post.date).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  const formattedDate = formatPostDate(post.date);
 
   return (
     <>
@@ -27,7 +23,9 @@ export default function BlogPost() {
         title={post.title}
         description={post.excerpt}
         image={post.coverImage}
+        imageAlt={post.coverAlt}
         type="article"
+        publishedTime={post.date}
       />
       <JsonLd
         data={{
@@ -35,8 +33,9 @@ export default function BlogPost() {
           "@type": "BlogPosting",
           headline: post.title,
           description: post.excerpt,
-          image: absoluteUrl(post.coverImage),
+          image: [absoluteUrl(post.coverImage)],
           datePublished: post.date,
+          dateModified: post.date,
           url: absoluteUrl(`/blog/${post.slug}`),
           mainEntityOfPage: {
             "@type": "WebPage",
@@ -45,10 +44,15 @@ export default function BlogPost() {
           author: {
             "@type": "Person",
             name: photographer.name,
+            url: absoluteUrl("/about"),
           },
           publisher: {
-            "@type": "Person",
-            name: photographer.name,
+            "@type": "Organization",
+            name: `${photographer.name} Photography`,
+            logo: {
+              "@type": "ImageObject",
+              url: absoluteUrl("/logo-nav.png"),
+            },
           },
         }}
       />

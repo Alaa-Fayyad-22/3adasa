@@ -15,6 +15,9 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
   const rafRef = useRef<number>(0);
 
   useEffect(() => {
+    // During prerender capture, leave the loader at its initial frame so the
+    // written HTML matches every client's first hydration render.
+    if (window.__PRERENDER__) return;
     const tick = (timestamp: number) => {
       if (startRef.current === null) startRef.current = timestamp;
       const elapsed = timestamp - startRef.current;
@@ -33,6 +36,7 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
   }, [onComplete]);
 
   useEffect(() => {
+    if (window.__PRERENDER__) return;
     const interval = setInterval(() => {
       setWordIndex((i) => (i + 1) % WORDS.length);
     }, 900);
@@ -77,7 +81,9 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
           className="accent-gradient h-full origin-left rounded-full"
           style={{
             transform: `scaleX(${count / 100})`,
-            boxShadow: "0 0 8px rgba(137, 170, 204, 0.35)",
+            // Written the way the browser re-serialises it in the prerendered
+            // HTML (colour first, explicit px) so hydration sees no drift.
+            boxShadow: "rgba(137, 170, 204, 0.35) 0px 0px 8px",
           }}
         />
       </div>

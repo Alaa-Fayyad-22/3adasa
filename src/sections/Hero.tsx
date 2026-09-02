@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { gsap, ScrollTrigger } from "../lib/gsapSetup";
 import Navbar from "../components/Navbar";
@@ -82,11 +82,33 @@ const PHOTO_WIDTH: Record<number, string> = {
   4: "min-[901px]:w-[min(13vw,146px)]",
 };
 
-const CLIP_HIDDEN = "inset(100% 0% 0% 0%)";
-const CLIP_SHOWN = "inset(0% 0% 0% 0%)";
+// Kept in the exact form the browser re-serialises an inline style to (the
+// redundant 4th `left` value is dropped), so the prerendered HTML round-trips
+// and hydration doesn't see a style mismatch on these.
+const CLIP_HIDDEN = "inset(100% 0% 0%)";
+const CLIP_SHOWN = "inset(0% 0% 0%)";
+
+// One considered arrangement is drawn per page load (count 2–4, a preset for
+// that count, and a stable key list for distinct photo selection). The very
+// first render — build-time prerender and every client's first hydration
+// render — uses this fixed seed so the markup matches exactly; a fresh random
+// draw replaces it once, after mount (see the effect in the component).
+const FIRST_RENDER_SEED = 1;
+
+function drawArrangement(seed: number) {
+  const rand = mulberry32(seed);
+  const count = 2 + Math.floor(rand() * 3);
+  const presetList = PRESETS[count];
+  const preset = presetList[Math.floor(rand() * presetList.length)];
+  const keys = Array.from({ length: 64 }, () => rand());
+  return { count, preset, keys };
+}
 
 export default function Hero() {
-  const [mode] = useState<HeroMode>(resolveMode);
+  // Always "animated" on the first render (server prerender + every client's
+  // hydration render) so hydration never mismatches; the real mode is resolved
+  // in the layout effect below and corrected there.
+  const [mode, setMode] = useState<HeroMode>("animated");
 
   const sectionRef = useRef<HTMLElement>(null);
   const textColRef = useRef<HTMLDivElement>(null);
@@ -99,16 +121,16 @@ export default function Hero() {
 
   const words = useMemo(() => STATEMENT.split(/\s+/), []);
 
-  // One random draw per mount: count (2–4), a preset for that count, and a
-  // stable key list for distinct photo selection.
-  const setup = useState(() => {
-    const rand = mulberry32((Math.random() * 2 ** 31) | 0);
-    const count = 2 + Math.floor(rand() * 3);
-    const presetList = PRESETS[count];
-    const preset = presetList[Math.floor(rand() * presetList.length)];
-    const keys = Array.from({ length: 64 }, () => rand());
-    return { count, preset, keys };
-  })[0];
+  // Deterministic on the first render (see FIRST_RENDER_SEED) so prerender and
+  // hydration produce identical markup; re-drawn once after mount for the
+  // intended per-load variety. On home the Hero sits behind the loading screen
+  // while that swap happens, so there's no visible flash.
+  const [setup, setSetup] = useState(() => drawArrangement(FIRST_RENDER_SEED));
+
+  useEffect(() => {
+    if (window.__PRERENDER__) return;
+    setSetup(drawArrangement((Math.random() * 2 ** 31) | 0));
+  }, []);
 
   // `count` distinct photos from the local portrait-only pool. Selection is
   // deterministic per mount (driven by the fixed `setup.keys`) and identical
@@ -136,7 +158,16 @@ export default function Hero() {
   //     settled, so a late reflow can't leave the scrub measuring stale layout
   //     (the "crooked until you scroll" bug). ---
   useLayoutEffect(() => {
-    if (mode !== "animated") return;
+    // Correct the mode once, after the deterministic first render.
+    const realMode = resolveMode();
+    if (realMode !== mode) {
+      setMode(realMode);
+      return;
+    }
+    // Skip all imperative DOM mutation during prerender capture and in the
+    // non-scroll modes.
+    if (window.__PRERENDER__ || mode !== "animated") return;
+
     const wordEls = wordRefs.current.filter(Boolean) as HTMLSpanElement[];
     const slotEls = slotRefs.current.filter(Boolean) as HTMLDivElement[];
     const textInner = textInnerRef.current;
@@ -304,7 +335,7 @@ export default function Hero() {
               className="mx-auto max-w-[34rem] text-center"
             >
               <p className="mb-6 text-xs uppercase tracking-[0.3em] text-muted">
-                {photographer.name} &middot; Photographer in {photographer.city}
+                {`${photographer.name} · Photographer in ${photographer.city}`}
               </p>
               <h1 className="font-display text-[1.9rem] italic leading-[1.3] text-text-primary min-[501px]:text-[2.4rem] lg:text-[2.9rem]">
                 {words.map((w, i) => (

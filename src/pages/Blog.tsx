@@ -4,7 +4,7 @@ import Footer from "../components/Footer";
 import Seo from "../components/Seo";
 import JsonLd from "../components/JsonLd";
 import { absoluteUrl } from "../lib/seo";
-import { posts } from "../data/posts";
+import { posts, formatPostDate } from "../data/posts";
 
 export default function Blog() {
   return (
@@ -62,11 +62,7 @@ export default function Blog() {
                     dateTime={post.date}
                     className="text-xs uppercase tracking-[0.2em] text-muted"
                   >
-                    {new Date(post.date).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
+                    {formatPostDate(post.date)}
                   </time>
                   <h2 className="font-display text-xl text-text-primary md:text-2xl">
                     {post.title}

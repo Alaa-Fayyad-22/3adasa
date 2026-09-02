@@ -96,6 +96,10 @@ export default function LocationPicker({ value, onChange }: LocationPickerProps)
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
 
   useEffect(() => {
+    // During the build-time prerender pass, leave status at "loading" so the
+    // captured HTML matches the client's first hydration render (the headless
+    // browser has no Maps API key and would otherwise bake in the error state).
+    if (window.__PRERENDER__) return;
     if (!GOOGLE_MAPS_API_KEY) {
       setStatus("error");
       return;

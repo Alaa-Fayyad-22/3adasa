@@ -48,9 +48,31 @@ export default function Index() {
           jobTitle: photographer.roles[0],
           description: photographer.description,
           image: absoluteUrl(aboutPortrait),
+          url: absoluteUrl("/"),
+          sameAs: ["https://www.instagram.com/3adasa.lb/"],
           address: {
             "@type": "PostalAddress",
             addressLocality: photographer.city,
+          },
+          areaServed: AREA_SERVED,
+        }}
+      />
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "ProfessionalService",
+          "@id": `${absoluteUrl("/")}#business`,
+          name: `${photographer.name} Photography`,
+          description: photographer.description,
+          image: absoluteUrl(aboutPortrait),
+          url: absoluteUrl("/"),
+          priceRange: "$$",
+          sameAs: ["https://www.instagram.com/3adasa.lb/"],
+          founder: { "@type": "Person", name: photographer.name },
+          address: {
+            "@type": "PostalAddress",
+            addressLocality: "Beirut",
+            addressCountry: "LB",
           },
           areaServed: AREA_SERVED,
         }}

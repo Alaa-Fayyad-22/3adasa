@@ -7,6 +7,7 @@ export default function About() {
   const imgRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
+    if (window.__PRERENDER__) return;
     const ctx = gsap.context(() => {
       gsap.fromTo(
         imgRef.current,
@@ -75,7 +76,8 @@ That's about the closest thing I have to a specialty. I'm based in Beirut, and o
           <div className="mb-8 flex flex-wrap gap-x-2 gap-y-1 text-sm text-muted">
             {stats.map((s, i) => (
               <span key={s.label} className="flex items-center gap-2">
-                <span className="text-text-primary">{s.value}</span> {s.label}
+                <span className="text-text-primary">{s.value}</span>
+                {` ${s.label}`}
                 {i < stats.length - 1 && <span className="text-stroke">·</span>}
               </span>
             ))}

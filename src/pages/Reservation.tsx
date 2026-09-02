@@ -1,7 +1,10 @@
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Seo from "../components/Seo";
+import JsonLd from "../components/JsonLd";
+import { absoluteUrl, AREA_SERVED } from "../lib/seo";
+import { photographer } from "../data/photos";
 import TurnstileWidget from "../components/Turnstile";
 import LocationPicker, { isLocationSelected, type LocationValue } from "../components/LocationPicker";
 import { reservationSchema, SESSION_TYPES } from "../lib/reservationSchema";
@@ -58,10 +61,19 @@ export default function Reservation() {
     session_location: string;
   } | null>(null);
 
-  const minDateTimeLocal = useMemo(() => {
+  // Computed client-side only: the value changes every minute, so putting it in
+  // the prerendered HTML would guarantee a hydration mismatch. Undefined on the
+  // first render (prerender + hydration agree), then set once mounted.
+  const [minDateTimeLocal, setMinDateTimeLocal] = useState<string | undefined>(
+    undefined
+  );
+  useEffect(() => {
+    // Skip during the prerender pass so the captured HTML carries no `min`
+    // attribute — matching the client's first (pre-effect) hydration render.
+    if (window.__PRERENDER__) return;
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    return now.toISOString().slice(0, 16);
+    setMinDateTimeLocal(now.toISOString().slice(0, 16));
   }, []);
 
   // Mirrors which fields reservationSchema actually requires (client_email
@@ -183,6 +195,21 @@ export default function Reservation() {
       <Seo
         title="Book a Photography Session"
         description="Reserve a portrait, street, landscape, or event photography session with Jad Daou in Beirut. Pick a date, drop a pin, and message on WhatsApp."
+      />
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Service",
+          serviceType: "Photography session",
+          name: "Book a photography session with Jad Daou",
+          url: absoluteUrl("/reservation"),
+          provider: {
+            "@type": "Person",
+            name: photographer.name,
+            url: absoluteUrl("/about"),
+          },
+          areaServed: AREA_SERVED,
+        }}
       />
       <Navbar />
       <main className="min-h-screen bg-bg px-6 pb-24 pt-24 md:pt-32">

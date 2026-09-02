@@ -89,7 +89,7 @@ export default function Footer() {
           </div>
 
           <p className="text-xs text-muted">
-            &copy; {year} {photographer.name}. All rights reserved.
+            {`© ${year} ${photographer.name}. All rights reserved.`}
           </p>
         </div>
         <div className="flex flex-col gap-3"></div>

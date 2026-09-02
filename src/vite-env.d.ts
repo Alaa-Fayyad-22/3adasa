@@ -9,3 +9,10 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+
+interface Window {
+  /** Set by scripts/prerender.ts before app code runs. When true, imperative
+   *  scroll/GSAP effects skip their DOM mutations so the captured HTML equals
+   *  React's pure render (clean hydration on the real client). */
+  __PRERENDER__?: boolean;
+}

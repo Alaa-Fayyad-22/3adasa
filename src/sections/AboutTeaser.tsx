@@ -8,6 +8,7 @@ export default function AboutTeaser() {
   const imgRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
+    if (window.__PRERENDER__) return;
     const ctx = gsap.context(() => {
       gsap.fromTo(
         imgRef.current,

@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { HelmetProvider } from "react-helmet-async";
+import { MotionConfig } from "framer-motion";
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Gallery from "./pages/Gallery";
@@ -9,9 +9,17 @@ import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import NotFound from "./pages/NotFound";
 
+// During the build-time prerender pass (scripts/prerender.ts sets this flag
+// before any app code runs) render Framer Motion elements in their static
+// initial state — no mount animations run in the headless browser, so the
+// captured HTML matches what every client produces on its first hydration
+// render. On a real client the flag is undefined, so motion behaves normally.
+const isPrerender =
+  typeof window !== "undefined" && window.__PRERENDER__ === true;
+
 function App() {
   return (
-    <HelmetProvider>
+    <MotionConfig isStatic={isPrerender}>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
@@ -24,7 +32,7 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
-    </HelmetProvider>
+    </MotionConfig>
   );
 }
 
