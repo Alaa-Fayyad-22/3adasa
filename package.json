@@ -9,7 +9,8 @@
     "generate-gallery-photos": "tsx scripts/generate-gallery-photos.ts",
     "generate-seo": "tsx scripts/generate-seo-files.ts",
     "prerender": "tsx scripts/prerender.ts",
-    "build": "npm run generate-gallery-photos && npm run generate-seo && puppeteer browsers install chrome-headless-shell && tsc -b && vite build && npm run prerender",
+    "build:ssr": "vite build --ssr src/entry-server.tsx --outDir dist-ssr",
+    "build": "npm run generate-gallery-photos && npm run generate-seo && tsc -b && vite build && npm run build:ssr && npm run prerender",
     "lint": "oxlint",
     "preview": "vite preview",
     "preview:dist": "tsx scripts/serve-dist.ts"
@@ -41,7 +42,6 @@
     "autoprefixer": "^10.5.4",
     "oxlint": "^1.71.0",
     "postcss": "^8.5.22",
-    "puppeteer": "^25.9.0",
     "tailwindcss": "^3.4.19",
     "tsx": "^4.23.1",
     "typescript": "~6.0.2",
