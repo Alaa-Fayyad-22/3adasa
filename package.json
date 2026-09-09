@@ -12,6 +12,8 @@
     "build:ssr": "vite build --ssr src/entry-server.tsx --outDir dist-ssr",
     "build": "npm run generate-gallery-photos && npm run generate-seo && tsc -b && vite build && npm run build:ssr && npm run prerender",
     "lint": "oxlint",
+    "test": "tsx --test \"api/**/*.test.ts\"",
+    "typecheck": "tsc -b",
     "preview": "vite preview",
     "preview:dist": "tsx scripts/serve-dist.ts"
   },
