@@ -25,6 +25,21 @@ export const heroPhotos: Photo[] = galleryPhotos.filter(
   (p) => p.width > 0 && p.height / p.width >= 1.15
 );
 
+/** Fisher-Yates shuffle — unbiased, unlike a `Math.random() - 0.5` sort. */
+function shuffle<T>(items: T[]): T[] {
+  const result = [...items];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+/** `count` distinct random photos from `pool` (fewer if the pool is smaller). */
+export function getRandomPhotos(pool: Photo[], count: number): Photo[] {
+  return shuffle(pool).slice(0, count);
+}
+
 /** Gallery filter tabs: "All" plus every category that actually has photos. */
 export const categories = [
   "All",

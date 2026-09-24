@@ -1,14 +1,24 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import GalleryCard from "../components/GalleryCard";
 import Lightbox from "../components/Lightbox";
-import { galleryPhotos } from "../data/photos";
+import { galleryPhotos, getRandomPhotos } from "../data/photos";
 
 export default function GalleryTeaser() {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
-  const teaserPhotos = galleryPhotos.slice(0, 4);
+  // Deterministic on the first render (server prerender + every client's
+  // hydration render) so prerender and hydration produce identical markup;
+  // re-drawn once after mount for per-load variety (same pattern as Hero).
+  const [teaserPhotos, setTeaserPhotos] = useState(() =>
+    galleryPhotos.slice(0, 4)
+  );
+
+  useEffect(() => {
+    if (window.__PRERENDER__) return;
+    setTeaserPhotos(getRandomPhotos(galleryPhotos, 4));
+  }, []);
 
   return (
     <section className="bg-bg py-12 md:py-16">
